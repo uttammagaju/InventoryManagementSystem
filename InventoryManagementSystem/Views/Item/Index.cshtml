@@ -1,41 +1,41 @@
 ﻿
 <div class="container mt-4">
-    <h2>Customer Management System</h2>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#customerModal">
-        Create New Customer
+    <h2>Order Management System</h2>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#itemModal">
+        Create New item
     </button>
 
-    <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="customerModalLabel">
-                        <span data-bind="ifnot: IsUpdated">Create New Customer</span>
-                        <span data-bind="if: IsUpdated">Update Customer</span>
+                    <h5 class="modal-title" id="itemModalLabel">
+                        <span data-bind="ifnot: IsUpdated">Create New item</span>
+                        <span data-bind="if: IsUpdated">Update item</span>
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-bind="click: CloseModel"></button>
                 </div>
                 <div class="modal-body">
                     <form>
-                        <div class="row" data-bind="with: IsUpdated() ? SelectedCustomer : NewCustomer">
+                        <div class="row" data-bind="with: IsUpdated() ? SelectedItem : NewItem">
                             <div class="col-md-4 form-group">
-                                <label>Full Name:</label>
-                                <input type="text" class="form-control" data-bind="value: FullName" />
+                                <label>Name:</label>
+                                <input type="text" class="form-control" data-bind="value: Name" />
                             </div>
                             <div class="col-md-4 form-group">
-                                <label>Contact Number:</label>
-                                <input type="text" class="form-control" data-bind="value: ContactNo">
+                                <label>Unit:</label>
+                                <input type="text" class="form-control" data-bind="value: Unit">
                             </div>
                             <div class="col-md-4 form-group">
-                                <label>Address:</label>
-                                <input type="text" class="form-control" data-bind="value: Address">
+                                <label>Category:</label>
+                                <input type="text" class="form-control" data-bind="value: Category">
                             </div>
                         </div>
                     </form>
                 </div>
 
                 <div class="modal-footer">
-                    <button class="btn btn-primary" data-bind="click: AddCustomer">
+                    <button class="btn btn-primary" data-bind="click: AddItem">
                         <span data-bind="ifnot: IsUpdated">Create</span>
                         <span data-bind="if: IsUpdated">Update</span>
                     </button>
@@ -55,28 +55,27 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody data-bind="foreach:CurrentCustomer()">
+        <tbody data-bind="foreach:CurrentItem()">
             <tr>
                 <td data-bind="text:$index() +1"></td>
-                <td data-bind="text:FullName"></td>
-                <td data-bind="text:ContactNo"></td>
-                <td data-bind="text:Address"></td>
+                <td data-bind="text:Name"></td>
+                <td data-bind="text:Unit"></td>
+                <td data-bind="text:Category"></td>
                 <td>
-                    <button class="btn btn-sm btn-dark" data-bind="click: $root.SelectCustomer" data-bs-toggle="modal" data-bs-target="#customerModal">Edit</button>
-                    <button data-bind="click: $root.DeleteCustomer" class="btn btn-sm btn-danger">Delete</button>
+                    <button class="btn btn-sm btn-dark" data-bind="click: $root.SelectItem" data-bs-toggle="modal" data-bs-target="#itemModal">Edit</button>
+                    <button data-bind="click: $root.DeleteItem" class="btn btn-sm btn-danger">Delete</button>
                 </td>
             </tr>
         </tbody>
     </table>
 </div>
-@section Scripts {
+
+@section Scripts{
     <script src="~/js/knockout.js"></script>
-    <script src="~/js/customers/customer.model.js"></script>
-    <script src="~/js/customers/customer.controller.js"></script>
+    <script src="~/js/items/item.controller.js"></script>
+    <script src="~/js/items/item.model.js"></script>
     <script>
-        {
-            var obj = new CustomerController();
-            ko.applyBindings(obj);
-        }
+        var obj = new ItemController();
+        ko.applyBindings(obj);
     </script>
 }

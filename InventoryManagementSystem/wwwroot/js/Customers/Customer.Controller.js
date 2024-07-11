@@ -49,7 +49,8 @@ var CustomerController = function () {
     self.DeleteCustomer = function (model) {
         ajax.delete(baseUrl + "?id=" + model.Id())
             .done(function (result) {
-                self.CurrentCustomer().remove(reuslt)
+                self.CurrentCustomer.remove(result);
+                self.GetDatas();
             })
             .fail((err) => {
                 console.log(err);
@@ -65,6 +66,7 @@ var CustomerController = function () {
 
     self.CloseModel = function () {
         self.ResetForm();
+        self.GetDatas();
     }
 
     self.ResetForm = function () {
@@ -73,8 +75,6 @@ var CustomerController = function () {
         self.IsUpdated(false);
     }
 }
-
-
 
 var ajax = {
     get: function (url) {
@@ -92,7 +92,7 @@ var ajax = {
             },
             method: "POST",
             url: url,
-            data: data
+            data: (data)
         });
     },
     put: function (url, data) {
@@ -112,4 +112,4 @@ var ajax = {
             url: route,
         });
     }
-};
+}
