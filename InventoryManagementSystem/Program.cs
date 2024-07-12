@@ -11,6 +11,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options=>options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddTransient<ICustomerServices, CustomerServices>();
 builder.Services.AddScoped<IItemsServices, ItemsServices>();
+builder.Services.AddScoped<ISalesReportServices, SalesReportServices>();
 
 var app = builder.Build();
 

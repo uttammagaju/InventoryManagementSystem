@@ -19,17 +19,19 @@ namespace InventoryManagementSystem.Services
             if (masterData.Count > 0)
             {
                 result = (from m in masterData
+                          let customer = _context.Customers.FirstOrDefault(c => c.Id == m.CustomerId)
                           let details = _context.SalesDetails.Where(x => x.SalesMasterId == m.Id)
                           select new SalesMasterVM
                           {
                               Id = m.Id,
                               SalesDate = m.SalesDate,
                               CustomerId = m.CustomerId,
+                              CustomerName = customer.FullName,
                               InvoiceNumber = m.InvoiceNumber,
                               BillAmount = m.BillAmount,
                               Discount = m.Discount,
                               NetAmount = m.NetAmount,
-                              sales = (from d in details
+                              Sales = (from d in details
                                        select new SalesDetailsVM
                                        {
                                            Id = d.Id,
@@ -37,7 +39,7 @@ namespace InventoryManagementSystem.Services
                                            Unit = d.Unit,
                                            Quantity = d.Quantity,
                                            Amount = d.Amount,
-                                           price = d.Price
+                                           Price = d.Price
                                        }
                               ).ToList()
                           }).ToList();
@@ -66,7 +68,7 @@ namespace InventoryManagementSystem.Services
                     Discount = masterData.Discount,
                     NetAmount = masterData.NetAmount,
                 };
-                data.sales = (from d in details
+                data.Sales = (from d in details
                               select new SalesDetailsVM()
                               {
                                   Id = d.Id,
@@ -74,7 +76,7 @@ namespace InventoryManagementSystem.Services
                                   Unit = d.Unit,
                                   Quantity = d.Quantity,
                                   Amount = d.Amount,
-                                  price = d.Price
+                                  Price = d.Price
                               }).ToList();
                 return data;
             }
@@ -119,28 +121,28 @@ namespace InventoryManagementSystem.Services
             _context.SaveChanges();
             if (masterData != null)
             {
-                var details = from d in salesReport.sales
+                var details = from d in salesReport.Sales
                               select new SalesDetailsModel
                               {
                                   Id = 0,
-                                  ItemId = d.Id,
+                                  ItemId = d.ItemId,
                                   Unit = d.Unit,
                                   Quantity = d.Quantity,
                                   Amount = d.Amount,
-                                  Price =d.price,
+                                  Price =d.Price,
                                   SalesMasterId = masterData.Id,
                               };
                 _context.SalesDetails.AddRange(details);
                 _context.SaveChanges();
 
             }
-            return salesReport.Id;
+            return masterAdd.Entity.Id;
         }
 
         public async Task<bool> Update(SalesMasterVM salesReport)
         {
             var masterData = _context.SalesMaster.Find(salesReport.Id);
-            if (masterData != null)
+            if (masterData == null)
             {
                 return false;
             }
@@ -155,14 +157,14 @@ namespace InventoryManagementSystem.Services
             var existingDetail = _context.SalesDetails.Where(x => x.SalesMasterId == masterData.Id);
             _context.SalesDetails.RemoveRange(existingDetail);
 
-            var details = from d in salesReport.sales
+            var details = from d in salesReport.Sales
                           select new SalesDetailsModel
                           {
                               ItemId = d.ItemId,
                               Unit = d.Unit,
                               Quantity = d.Quantity,
                               Amount = d.Amount,
-                              Price = d.price,
+                              Price = d.Price,
                               SalesMasterId = masterData.Id,
                           };
             _context.SalesDetails.AddRange(details);
@@ -188,8 +190,9 @@ namespace InventoryManagementSystem.Services
                 }
                 _context.SalesMaster.Remove(masterDate);
                 _context.SaveChanges();
-                return true;
+                
             }
+            return true;
         }
 
 
