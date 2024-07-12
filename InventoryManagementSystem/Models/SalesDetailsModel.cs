@@ -12,6 +12,7 @@ namespace InventoryManagementSystem.Models
         public ItemModel Item { get; set; }
         public string Unit { get; set; }
         public int Quantity { get; set; }
+        public decimal Price { get; set; }
         public decimal Amount { get; set; }
         public  int SalesMasterId { get; set; }
         [ForeignKey("SalesMasterId")]

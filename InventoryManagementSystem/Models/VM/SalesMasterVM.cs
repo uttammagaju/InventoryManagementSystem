@@ -20,6 +20,7 @@
         public string Unit { get; set; }
         public int Quantity { get; set; }
         public decimal Amount { get; set; }
+        public decimal price { get; set; }
     }
 }
 
