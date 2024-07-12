@@ -33,9 +33,11 @@ namespace InventoryManagementSystem.Services
                                        select new SalesDetailsVM
                                        {
                                            Id = d.Id,
+                                           ItemId = d.ItemId,
                                            Unit = d.Unit,
                                            Quantity = d.Quantity,
                                            Amount = d.Amount,
+                                           price = d.Price
                                        }
                               ).ToList()
                           }).ToList();
@@ -68,9 +70,11 @@ namespace InventoryManagementSystem.Services
                               select new SalesDetailsVM()
                               {
                                   Id = d.Id,
+                                  ItemId = d.ItemId,
                                   Unit = d.Unit,
                                   Quantity = d.Quantity,
                                   Amount = d.Amount,
+                                  price = d.Price
                               }).ToList();
                 return data;
             }
@@ -123,6 +127,7 @@ namespace InventoryManagementSystem.Services
                                   Unit = d.Unit,
                                   Quantity = d.Quantity,
                                   Amount = d.Amount,
+                                  Price =d.price,
                                   SalesMasterId = masterData.Id,
                               };
                 _context.SalesDetails.AddRange(details);
@@ -157,14 +162,34 @@ namespace InventoryManagementSystem.Services
                               Unit = d.Unit,
                               Quantity = d.Quantity,
                               Amount = d.Amount,
-
-                          }
+                              Price = d.price,
+                              SalesMasterId = masterData.Id,
+                          };
+            _context.SalesDetails.AddRange(details);
+            _context.SaveChanges();
+            return true;
 
         }
 
-        public Task<bool> Delete(int id)
+        public async Task<bool> Delete(int id)
         {
-            throw new NotImplementedException();
+           var masterDate = _context.SalesMaster.Find(id);
+           if(masterDate == null)
+            {
+                return false;
+            }
+            else
+            {
+                var details = _context.SalesDetails.Where(x => x.SalesMasterId ==  masterDate.Id).ToList();
+                if(details.Count > 0)
+                {
+                    _context.SalesDetails.RemoveRange(details);
+                    _context.SaveChanges();
+                }
+                _context.SalesMaster.Remove(masterDate);
+                _context.SaveChanges();
+                return true;
+            }
         }
 
 
