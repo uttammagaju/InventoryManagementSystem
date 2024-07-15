@@ -29,7 +29,7 @@ var ItemController = function () {
                 ajax.post(baseUrl, JSON.stringify(ItemData))
                     .done(function (result) {
                         self.CurrentItem.push(new ItemModel(result));
-                        self.ResetForm();
+                        self.CloseModel();
                         self.GetDatas();
                         $('#itemModal').modal('hide');
                     })
@@ -38,7 +38,7 @@ var ItemController = function () {
                 ajax.put(baseUrl, JSON.stringify(ItemData))
                     .done(function (result) {
                         self.CurrentItem.replace(self.SelectedItem(), new ItemModel(result));
-                        self.ResetForm();
+                        self.CloseModel();
                         self.GetDatas();
                         $('#itemModal').modal('hide');
                     })
@@ -61,7 +61,7 @@ var ItemController = function () {
         self.SelectedItem(model);
         self.IsUpdated(true);
         self.mode(mode.update);
-        $('#itemModel').modal('show');
+       
     }
     self.CloseModel = function () {
         self.ResetForm();

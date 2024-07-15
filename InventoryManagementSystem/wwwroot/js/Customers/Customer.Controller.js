@@ -30,8 +30,8 @@ var CustomerController = function () {
                 ajax.post(baseUrl, JSON.stringify(customerData))
                     .done(function (result) {
                         self.CurrentCustomer.push(new CustomerModel(result));
-                        self.ResetForm();
                         self.GetDatas();
+                        self.CloseModel();
                         $('#customerModal').modal('hide');
                     })
                 break;
@@ -39,7 +39,7 @@ var CustomerController = function () {
                 ajax.put(baseUrl, JSON.stringify(customerData))
                     .done(function (result) {
                         self.CurrentCustomer.replace(self.SelectedCustomer(), new CustomerModel(result));
-                        self.ResetForm();
+                        self.CloseModel();
                         self.GetDatas();
                         $('#customerModal').modal('hide');
                     })

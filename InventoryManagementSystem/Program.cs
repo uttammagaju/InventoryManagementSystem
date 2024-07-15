@@ -1,5 +1,6 @@
 using InventoryManagementSystem.Data;
 using InventoryManagementSystem.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,21 @@ builder.Services.AddDbContext<ApplicationDbContext>(options=>options.UseSqlServe
 builder.Services.AddTransient<ICustomerServices, CustomerServices>();
 builder.Services.AddScoped<IItemsServices, ItemsServices>();
 builder.Services.AddScoped<ISalesReportServices, SalesReportServices>();
+builder.Services.AddScoped<IUserService, UserServices>();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(config =>
+    {
+        //config.ExpireTimeSpan = TimeSpan.FromMinutes(25);
+        config.LoginPath = "/Account/Index";
+        config.AccessDeniedPath = "/home/AccessDenied";
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("admin"));
+    options.AddPolicy("EmployeeOnly", policy => policy.RequireRole("employee"));
+});
 
 var app = builder.Build();
 
@@ -31,6 +47,7 @@ app.UseSwaggerUI();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

@@ -1,5 +1,6 @@
 ﻿
 
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -15,6 +16,7 @@ namespace InventoryManagementSystem.Models
         public virtual CustomerModel Customer { get; set; }
         public int InvoiceNumber { get; set; }
         public decimal BillAmount { get; set; }
+        [Range(1,100)]
         public decimal Discount { get; set;}
         public decimal NetAmount { get; set; }
 
