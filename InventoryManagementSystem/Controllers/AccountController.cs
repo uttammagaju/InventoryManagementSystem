@@ -1,7 +1,11 @@
 ﻿using InventoryManagementSystem.Data;
 using InventoryManagementSystem.Models;
+using InventoryManagementSystem.Models.VM;
 using InventoryManagementSystem.Services;
 using InventoryManagementSystem.Utils;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -23,23 +27,32 @@ namespace InventoryManagementSystem.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(UserModel model)
+        public IActionResult Login(LoginVM model)
         {
-            if (ModelState.IsValid)
-            {
-                UserModel user = _userService.GetUserWithRole(model.Email, model.Password);
-                if(user != null)
-                {
-                    IdentityUtils.AddingClaimIdentity(model, user.Roles ?? "employee", HttpContext);
-                    return Redirect("/");
-                }
-                else
-                    ModelState.AddModelError("Password", "Invalid Username or Password");
 
+            UserModel user = _userService.GetUserWithRole(model.Email, model.Password);
+            user.ConfirmPassword = user.Password;
+            model.Username = user.Username;
+            if (user != null)
+            {
+                IdentityUtils.AddingClaimIdentity(model, user.Roles ?? "employee", HttpContext);
+                return Redirect("/");
             }
+            else
+                ModelState.AddModelError("Password", "Invalid Username or Password");
+
             return View("Index");
         }
         [HttpGet]
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Index");
+        }
+
         public IActionResult SignUp()
         {
             ViewBag.Roles = new List<SelectListItem>
@@ -64,11 +77,11 @@ namespace InventoryManagementSystem.Controllers
                     ConfirmPassword = model.ConfirmPassword,
                 };
 
-               
-               return RedirectToAction("Index");
+
+                return RedirectToAction("Index");
             }
             // If we got this far, something failed, redisplay form
-                ViewBag.Roles = new List<SelectListItem>
+            ViewBag.Roles = new List<SelectListItem>
             {
                 new SelectListItem { Value = "Employee", Text = "Employee" },
                 new SelectListItem { Value = "Admin", Text = "Admin" }

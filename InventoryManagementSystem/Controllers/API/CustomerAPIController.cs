@@ -44,5 +44,11 @@ namespace InventoryManagementSystem.Controllers.API
         {
             return await _customer.Delete(id);
         }
+
+        [HttpGet("Search")]
+        public async Task<List<CustomerModel>> SearchCustomer(string searchTerm)
+        {
+            return await _customer.SearchCustomer(searchTerm);
+        }
     }
 }

@@ -10,71 +10,99 @@ var ItemController = function () {
     const baseUrl = '/api/ItemAPI';
     self.NewItem = ko.observable(new ItemModel());
     self.CurrentItem = ko.observableArray([]);
-    self.SelectedItem = ko.observableArray([]);
+    self.SelectedItem = ko.observable(new ItemModel());
     self.IsUpdated = ko.observable(false);
     self.mode = ko.observable(mode.create);
+    self.currentPage = ko.observable(1);
+    self.itemsPerPage = ko.observable(10);
+    self.totalPages = ko.computed(function () {
+        return Math.ceil(self.CurrentItem().length / self.itemsPerPage());
+    });
+
+    self.pagedItems = ko.computed(function () {
+        var startIndex = (self.currentPage() - 1) * self.itemsPerPage();
+        return self.CurrentItem.slice(startIndex, startIndex + self.itemsPerPage());
+    });
+
+    // Navigation methods
+    self.nextPage = function () {
+        if (self.currentPage() < self.totalPages()) {
+            self.currentPage(self.currentPage() + 1);
+        }
+    };
+
+    self.previousPage = function () {
+        if (self.currentPage() > 1) {
+            self.currentPage(self.currentPage() - 1);
+        }
+    };
+
+    self.goToPage = function (page) {
+        self.currentPage(page);
+    };
 
     self.GetDatas = function () {
         ajax.get(baseUrl).then(function (result) {
             self.CurrentItem(result.map(item => new ItemModel(item)));
+            self.currentPage(1);
         });
-    }
+    };
 
     self.GetDatas();
 
     self.AddItem = function () {
         var ItemData = ko.toJS(self.IsUpdated() ? self.SelectedItem : self.NewItem);
         switch (self.mode()) {
-            case 1:
+            case mode.create:
                 ajax.post(baseUrl, JSON.stringify(ItemData))
                     .done(function (result) {
                         self.CurrentItem.push(new ItemModel(result));
                         self.CloseModel();
                         self.GetDatas();
                         $('#itemModal').modal('hide');
-                    })
+                    });
                 break;
-            case 2:
+            case mode.update:
                 ajax.put(baseUrl, JSON.stringify(ItemData))
                     .done(function (result) {
                         self.CurrentItem.replace(self.SelectedItem(), new ItemModel(result));
                         self.CloseModel();
                         self.GetDatas();
                         $('#itemModal').modal('hide');
-                    })
+                    });
+                break;
         }
-    }
+    };
 
     self.DeleteItem = function (model) {
-        debugger
         ajax.delete(baseUrl + "?id=" + model.Id())
             .done(function (result) {
-                self.CurrentItem.remove(result);
+                self.CurrentItem.remove(function (item) { return item.Id() === result.Id; });
                 self.GetDatas();
             })
-            .fail((err) => {
+            .fail(function (err) {
                 console.log(err);
-            })
-    }
+            });
+    };
 
     self.SelectItem = function (model) {
         self.SelectedItem(model);
         self.IsUpdated(true);
         self.mode(mode.update);
-       
-    }
+    };
+
     self.CloseModel = function () {
         self.ResetForm();
-        self.GetDatas();
-    }
+        $('#itemModal').modal('hide');
+    };
+
     self.ResetForm = function () {
-        self.CurrentItem(new ItemModel());
+        self.NewItem(new ItemModel());
         self.SelectedItem(new ItemModel());
         self.IsUpdated(false);
-    }
+    };
+};
 
-    
-}
 var ajax = {
     get: function (url) {
         return $.ajax({
@@ -91,7 +119,7 @@ var ajax = {
             },
             method: "POST",
             url: url,
-            data: (data)
+            data: data
         });
     },
     put: function (url, data) {
@@ -111,4 +139,4 @@ var ajax = {
             url: route,
         });
     }
-}
+};

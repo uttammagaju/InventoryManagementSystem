@@ -4,7 +4,10 @@
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#customerModal">
         Create New Customer
     </button>
-
+    <div class="col-md-5 text-end">
+        <input type="text" class="form-control d-inline-block w-auto" placeholder="Search Item" data-bind="value: $root.searchTerm, valueUpdate: 'afterkeydown'" />
+        <button class="btn btn-secondary mx-3" data-bind="click:$root.clickedSearch">Search</button>
+    </div>
     <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -68,6 +71,25 @@
             </tr>
         </tbody>
     </table>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete the customer <span data-bind="text: customerToDelete() ? customerToDelete().FullName() : ''"></span>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button data-bind="click: confirmDelete" class="btn btn-sm btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+
 </div>
 @section Scripts {
     <script src="~/js/knockout.js"></script>

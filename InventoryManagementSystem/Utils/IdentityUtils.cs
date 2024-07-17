@@ -2,12 +2,13 @@
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using InventoryManagementSystem.Models;
+using InventoryManagementSystem.Models.VM;
 
 namespace InventoryManagementSystem.Utils
 {
     public class IdentityUtils
     {
-        public static void AddingClaimIdentity(UserModel user, string? roles, HttpContext httpcontext)
+        public static void AddingClaimIdentity(LoginVM user, string? roles, HttpContext httpcontext)
         {
 
             //list of claims

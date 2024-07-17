@@ -86,6 +86,10 @@ namespace InventoryManagementSystem.Services
             await _context.SaveChangesAsync();
             return true;
         }
+        public async Task<List<CustomerModel>> SearchCustomer(string searchTerm)
+        {
+            return await _context.Customers.Where( x=> x.FullName.ToLower().Contains(searchTerm.ToLower())).ToListAsync();
+        }
 
     }
 }

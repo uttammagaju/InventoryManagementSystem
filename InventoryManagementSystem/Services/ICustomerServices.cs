@@ -9,5 +9,6 @@ namespace InventoryManagementSystem.Services
         Task<int> Create (CustomerModel customer);
         Task<bool> Update (CustomerModel customer);
         Task<bool> Delete (int id);
+        Task<List<CustomerModel>> SearchCustomer(string searchTerm);
     }
 }
