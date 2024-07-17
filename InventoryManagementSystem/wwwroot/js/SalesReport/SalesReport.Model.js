@@ -1,7 +1,7 @@
 ﻿/// <reference path="../knockout.js" />
 
 
-var SalesMasterVM = function (item) {
+var SalesMasterVM = function (item, parent) {
     var self = this;
     item = item || {};
     self.Id = ko.observable(item.id || 0);
@@ -11,7 +11,7 @@ var SalesMasterVM = function (item) {
     self.InvoiceNumber = ko.observable(item.invoiceNumber || 0);
     self.Discount = ko.observable(item.discount || 0);
     self.Sales = ko.observableArray((item.sales || []).map(function (item) {
-        return new SalesDetailVM(item);
+        return new SalesDetailVM(item, self);
     }));
 
     // Computed property for billAmount
@@ -28,19 +28,34 @@ var SalesMasterVM = function (item) {
     });
 };
 
-var SalesDetailVM = function (item) {
+
+var SalesDetailVM = function (item, parent) {
     var self = this;
     item = item || {};
     self.Id = ko.observable(item.id || 0);
     self.ItemId = ko.observable(item.itemId || '');
     self.Unit = ko.observable(item.unit || '');
     self.Quantity = ko.observable(item.quantity || 0);
-    self.Amount = ko.observable(item.amount || 0);
     self.Price = ko.observable(item.price || 0);
     self.Amount = ko.computed(function () {
         return self.Quantity() * self.Price();
     });
+
+    // Subscribe to changes in ItemId to update Unit
+    self.ItemId.subscribe(function (newValue) {
+        var selectedItem = parent.ItemsNameList().find(function (item) {
+            return item.Id() === newValue;
+        });
+
+        if (selectedItem) {
+            self.Unit(selectedItem.Unit());
+        } else {
+            self.Unit('');
+        }
+    });
 };
+
+
 
 
 var CustomerNameVM = function (item) {
@@ -55,4 +70,6 @@ var ItemNameVM = function (item) {
     item = item || {};
     self.Id = ko.observable(item.id || 0);
     self.ItemName = ko.observable(item.itemName || '');
+    self.Unit = ko.observable(item.unit || 0);
+
 };

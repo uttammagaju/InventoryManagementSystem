@@ -9,8 +9,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="orderModalLabel">
-                        <span data-bind="ifnot: IsUpdated">Create New Order</span>
-                        <span data-bind="if: IsUpdated">Update Order</span>
+                        <span data-bind="ifnot: IsUpdated">Create New Sales</span>
+                        <span data-bind="if: IsUpdated">Update sales</span>
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-bind="click: CloseModel"></button>
                 </div>
@@ -71,7 +71,7 @@
                                         </select>
 
                                     </td>
-                                    <td><input type="text" class="form-control" data-bind="value: Unit"></td>
+                                    <td><input type="text" class="form-control" data-bind="value: Unit" readonly></td>
                                     <td><input type="number" class="form-control" data-bind="value: Quantity, valueUpdate : 'input' @* ,event:{change: $root.calculateTotal} *@"></td>
                                     <td><input type="number" step="0.01" class="form-control" data-bind="value: Price, valueUpdate : 'input' @* ,event:{change: $root.calculateTotal} *@" /></td>
                                     <td><input type="number" step="0.01" class="form-control" data-bind="value: Amount, enable: false, valueUpdate : 'input' " readonly  /></td>

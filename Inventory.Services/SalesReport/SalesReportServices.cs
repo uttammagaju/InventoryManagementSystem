@@ -101,6 +101,7 @@ namespace InventoryManagementSystem.Services
             {
                 Id = item.Id,
                 ItemName = item.Name,
+                Unit = item.Unit,
             }).ToList();
             return ItemsData;
         }

@@ -12,14 +12,14 @@ var SalesReportController = function () {
     self.CustomersNameList = ko.observableArray([]);
     self.ItemsNameList = ko.observableArray([]);
     self.IsUpdated = ko.observable(false);
-    self.SelectedOrder = ko.observable(new SalesMasterVM());
-    self.NewOrder = ko.observable(new SalesMasterVM());
+    self.SelectedOrder = ko.observable(new SalesMasterVM({}, self));//self typically refers to the parent ViewModel or controller (SalesReportController).
+    self.NewOrder = ko.observable(new SalesMasterVM({},self));
     self.mode = ko.observable(mode.create);
 
     // Fetch Data From Server 
     self.getData = function () {
         ajax.get(baseUrl + "/GetAll").then(function (result) {
-            self.CurrentOrder(result.map(item => new SalesMasterVM(item)));
+            self.CurrentOrder(result.map(item => new SalesMasterVM(item,self)));
         });
     }
     self.getData();
@@ -42,40 +42,40 @@ var SalesReportController = function () {
         var orderData = ko.toJS(self.IsUpdated() ? self.SelectedOrder : self.NewOrder);
         console.log("Order Data before sending:", orderData); // Log the data
 
-        // Format the data if needed
-        var formattedOrder = {
-            Id: orderData.Id,
-            CustomerId: orderData.CustomerId,
-            SalesDate: orderData.SalesDate,
-            CustomerName: orderData.CustomerName,
-            InvoiceNumber: orderData.InvoiceNumber,
-            Discount: orderData.Discount,
-            Sales: orderData.Sales.map(function (item) {
-                return {
-                    Id: item.Id,
-                    ItemId: item.ItemId,
-                    Unit: item.Unit,
-                    Quantity: item.Quantity,
-                    Price: item.Price
-                };
-            })
-        };
+        //// Format the data if needed
+        //var formattedOrder = {
+        //    Id: orderData.Id,
+        //    CustomerId: orderData.CustomerId,
+        //    SalesDate: orderData.SalesDate,
+        //    CustomerName: orderData.CustomerName,
+        //    InvoiceNumber: orderData.InvoiceNumber,
+        //    Discount: orderData.Discount,
+        //    Sales: orderData.Sales.map(function (item) {
+        //        return {
+        //            Id: item.Id,
+        //            ItemId: item.ItemId,
+        //            Unit: item.Unit,
+        //            Quantity: item.Quantity,
+        //            Price: item.Price
+        //        };
+        //    })
+        //};
 
-        console.log("Formatted Order Data:", formattedOrder); // Log the formatted data
+        //console.log("Formatted Order Data:", formattedOrder); // Log the formatted data
 
-        // Validate the order data
-        var validation = self.validateOrder(formattedOrder);
-        if (!validation.isValid) {
-            alert(validation.errorMessage);
-            return;
-        }
+        //// Validate the order data
+        //var validation = self.validateOrder(formattedOrder);
+        //if (!validation.isValid) {
+        //    alert(validation.errorMessage);
+        //    return;
+        //}
 
         switch (self.mode()) {
             case mode.create:
-                ajax.post(baseUrl + "/Create", JSON.stringify(formattedOrder))
+                ajax.post(baseUrl + "/Create", JSON.stringify(orderData))
                     .done(function (result) {
                         console.log("Data received", result);
-                        self.CurrentOrder.push(new SalesMasterVM(result));
+                        self.CurrentOrder.push(new SalesMasterVM(result, self));
                         self.resetForm();
                         self.getData();
                         $('#orderModal').modal('hide');
@@ -87,7 +87,7 @@ var SalesReportController = function () {
             case mode.update:
                 ajax.put(baseUrl + "/Update", JSON.stringify(formattedOrder))
                     .done(function (result) {
-                        var updatedOrder = new SalesMasterVM(result);
+                        var updatedOrder = new SalesMasterVM(result, self);
                         var index = self.CurrentOrder().findIndex(function (item) {
                             return item.Id() === updatedOrder.Id();
                         });
@@ -105,42 +105,42 @@ var SalesReportController = function () {
         }
     };
 
-    self.validateOrder = function (orderData) {
-        var isValid = true;
-        var errorMessage = "";
+    //self.validateOrder = function (orderData) {
+    //    var isValid = true;
+    //    var errorMessage = "";
 
-        if (!orderData.CustomerId) {
-            isValid = false;
-            errorMessage += "Customer is required. ";
-        }
+    //    if (!orderData.CustomerId) {
+    //        isValid = false;
+    //        errorMessage += "Customer is required. ";
+    //    }
 
-        if (!orderData.SalesDate) {
-            isValid = false;
-            errorMessage += "Date is required. ";
-        }
+    //    if (!orderData.SalesDate) {
+    //        isValid = false;
+    //        errorMessage += "Date is required. ";
+    //    }
 
-        if (orderData.Sales.length === 0) {
-            isValid = false;
-            errorMessage += "At least one item is required. ";
-        }
+    //    if (orderData.Sales.length === 0) {
+    //        isValid = false;
+    //        errorMessage += "At least one item is required. ";
+    //    }
 
-        orderData.Sales.forEach((item, index) => {
-            if (!item.ItemId) {
-                isValid = false;
-                errorMessage += `Item is required for item ${index + 1}. `;
-            }
-            if (!item.Quantity || item.Quantity <= 0) {
-                isValid = false;
-                errorMessage += `Valid Quantity is required for item ${index + 1}. `;
-            }
-            if (!item.Price || item.Price <= 0) {
-                isValid = false;
-                errorMessage += `Valid Price is required for item ${index + 1}. `;
-            }
-        });
+    //    orderData.Sales.forEach((item, index) => {
+    //        if (!item.ItemId) {
+    //            isValid = false;
+    //            errorMessage += `Item is required for item ${index + 1}. `;
+    //        }
+    //        if (!item.Quantity || item.Quantity <= 0) {
+    //            isValid = false;
+    //            errorMessage += `Valid Quantity is required for item ${index + 1}. `;
+    //        }
+    //        if (!item.Price || item.Price <= 0) {
+    //            isValid = false;
+    //            errorMessage += `Valid Price is required for item ${index + 1}. `;
+    //        }
+    //    });
 
-        return { isValid, errorMessage };
-    };
+    //    return { isValid, errorMessage };
+    //};
 
 
     // Delete Product
@@ -167,8 +167,8 @@ var SalesReportController = function () {
     }
 
     self.resetForm = function () {
-        self.NewOrder(new SalesMasterVM());
-        self.SelectedOrder(new SalesMasterVM());
+        self.NewOrder(new SalesMasterVM({}, self));
+        self.SelectedOrder(new SalesMasterVM({},self));
         self.IsUpdated(false);
         self.AddItem(); // Add an initial empty item
     }
@@ -185,9 +185,9 @@ var SalesReportController = function () {
      //Add Item
     self.AddItem = function () {
         if (self.IsUpdated()) {
-            self.SelectedOrder().Sales.push(new SalesDetailVM());
+            self.SelectedOrder().Sales.push(new SalesDetailVM({},self));
         } else {
-            self.NewOrder().Sales.push(new SalesDetailVM());
+            self.NewOrder().Sales.push(new SalesDetailVM({},self));
         }
     };
 
