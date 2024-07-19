@@ -1,6 +1,6 @@
 ﻿
+using Inventory.Services.PurchasesReport;
 using InventoryManagementSystem.Models.VM;
-using InventoryManagementSystem.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

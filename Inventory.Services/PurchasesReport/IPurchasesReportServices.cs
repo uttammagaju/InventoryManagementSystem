@@ -1,9 +1,9 @@
 ﻿using InventoryManagementSystem.Models;
 using InventoryManagementSystem.Models.VM;
 
-namespace InventoryManagementSystem.Services
+namespace Inventory.Services.PurchasesReport
 {
-    public interface IPurchasesReportServices 
+    public interface IPurchasesReportServices
     {
         Task<List<PurchasesMasterVM>> GetAll();
         Task<PurchasesMasterVM> GetById(int id);

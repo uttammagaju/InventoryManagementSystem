@@ -1,3 +1,4 @@
+using Inventory.Services.PurchasesReport;
 using InventoryManagementSystem.Data;
 using InventoryManagementSystem.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 
-namespace InventoryManagementSystem.Services
+namespace Inventory.Services.PurchasesReport
 {
     public class PurchasesReportServices : IPurchasesReportServices
     {
@@ -150,7 +150,7 @@ namespace InventoryManagementSystem.Services
                             {
 
                                 existingData.quantity = existingData.quantity + item.Quantity;
-                               
+
                                 _context.ItemsCurrentInfo.Update(existingData);
                                 _context.SaveChanges();
                             }
@@ -180,15 +180,15 @@ namespace InventoryManagementSystem.Services
 
                         }
                     }
-                    
-                   // _context.Database.RollbackTransaction();
+
+                    // _context.Database.RollbackTransaction();
                     return masterAdd.Entity.Id;
                 }
-                
+
             }
-          
+
         }
-        
+
         public async Task<bool> Update(PurchasesMasterVM purchaseReport)
         {
             var masterData = _context.PurchasesMaster.Find(purchaseReport.Id);
@@ -198,18 +198,18 @@ namespace InventoryManagementSystem.Services
             }
             masterData.Id = purchaseReport.Id;
             masterData.VendorId = purchaseReport.VendorId;
-            masterData.InvoiceNumber    = purchaseReport.InvoiceNumber;
+            masterData.InvoiceNumber = purchaseReport.InvoiceNumber;
             masterData.Discount = purchaseReport.Discount;
             masterData.BillAmount = purchaseReport.BillAmount;
             masterData.NetAmount = purchaseReport.NetAmount;
             var masterAdd = _context.PurchasesMaster.Update(masterData);
             _context.SaveChanges();
 
-            var existingDetailsData = _context.PurchasesDetail.Where(x=>x.PurchaseMasterId == purchaseReport.Id).ToList();
+            var existingDetailsData = _context.PurchasesDetail.Where(x => x.PurchaseMasterId == purchaseReport.Id).ToList();
 
-            foreach(var item in existingDetailsData)
+            foreach (var item in existingDetailsData)
             {
-               var itemCurrentInfo = _context.ItemsCurrentInfo.FirstOrDefault(x=>x.ItemId==item.ItemId);
+                var itemCurrentInfo = _context.ItemsCurrentInfo.FirstOrDefault(x => x.ItemId == item.ItemId);
                 if (itemCurrentInfo != null)
                 {
                     itemCurrentInfo.quantity -= item.Quantity;
@@ -223,7 +223,7 @@ namespace InventoryManagementSystem.Services
                     Quantity = item.Quantity,
                     TransDate = DateTime.Now,
                     StockCheckOut = StockCheckOut.Out,
-                    TransactionType=TransactionType.Sales
+                    TransactionType = TransactionType.Sales
                 };
                 _context.ItemsHistoryInfo.Add(itemHistoryInfo);
                 _context.SaveChanges();
@@ -246,7 +246,7 @@ namespace InventoryManagementSystem.Services
             foreach (var item in detailsData)
             {
                 var itemCurrentinfo = _context.ItemsCurrentInfo.FirstOrDefault(x => x.ItemId == item.ItemId);
-                if(itemCurrentinfo != null)
+                if (itemCurrentinfo != null)
                 {
                     itemCurrentinfo.quantity += item.Quantity;
                     _context.ItemsCurrentInfo.Update(itemCurrentinfo);
@@ -259,7 +259,7 @@ namespace InventoryManagementSystem.Services
                         Id = 0,
                         ItemId = item.ItemId,
                         quantity = item.Quantity,
-                        
+
                     };
                     _context.ItemsCurrentInfo.Add(currentInfo);
                     _context.SaveChanges();
@@ -292,7 +292,7 @@ namespace InventoryManagementSystem.Services
                 var details = _context.PurchasesDetail.Where(x => x.PurchaseMasterId == masterData.Id).ToList();
                 if (details.Count > 0)
                 {
-                    foreach(var item in details)
+                    foreach (var item in details)
                     {
                         var itemCurrentInfo = _context.ItemsCurrentInfo.FirstOrDefault(x => x.ItemId == item.ItemId);
                         itemCurrentInfo.quantity -= item.Quantity;
@@ -301,11 +301,11 @@ namespace InventoryManagementSystem.Services
                         var itemCurrentInfoHistory = new ItemCurrentInfoHistory
                         {
                             Id = 0,
-                            ItemId= item.ItemId,
+                            ItemId = item.ItemId,
                             Quantity = item.Quantity,
-                            TransactionType= TransactionType.Sales,
+                            TransactionType = TransactionType.Sales,
                             StockCheckOut = StockCheckOut.Out,
-                            TransDate= DateTime.Now,
+                            TransDate = DateTime.Now,
                         };
                         _context.ItemsHistoryInfo.Add(itemCurrentInfoHistory);
                         _context.SaveChanges();
