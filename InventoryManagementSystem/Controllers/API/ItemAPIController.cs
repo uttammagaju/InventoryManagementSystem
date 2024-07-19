@@ -27,13 +27,13 @@ namespace InventoryManagementSystem.Controllers.API
         }
 
         [HttpPost]
-        public async Task<int> Create(ItemModel itemModel)
+        public async Task<IActionResult> Create(ItemModel itemModel)
         {
             return await _item.Create(itemModel);
         }
 
         [HttpPut]
-        public async Task<bool> Update(ItemModel itemModel)
+        public async Task<IActionResult> Update(ItemModel itemModel)
         {
             return await _item.Update(itemModel);
         }

@@ -1,4 +1,5 @@
-﻿using InventoryManagementSystem.Models;
+﻿using Inventory.Entities;
+using InventoryManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace InventoryManagementSystem.Data
@@ -15,6 +16,14 @@ namespace InventoryManagementSystem.Data
         public DbSet<SalesMasterModel> SalesMaster { get; set; }
         public DbSet<SalesDetailsModel> SalesDetails { get; set; }
         public DbSet<UserModel> User { get; set; }
+        public DbSet<VendorModel> Vendors { get; set; }
+        public DbSet<ItemCurrentInfo> ItemsCurrentInfo { get; set; }
+
+        public DbSet<ItemCurrentInfoHistory> ItemsHistoryInfo { get; set; }
+
+        public DbSet<PurchaseMasterModel> PurchasesMaster { get; set; }
+
+        public DbSet<PurchaseDetailModel> PurchasesDetail { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -1,10 +1,11 @@
 ﻿using InventoryManagementSystem.Data;
 using InventoryManagementSystem.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+using System.Threading.Tasks;
 
 namespace InventoryManagementSystem.Services
-{
+{  
     public class ItemsServices : IItemsServices
     {
         private readonly ApplicationDbContext _context;
@@ -43,8 +44,14 @@ namespace InventoryManagementSystem.Services
             };
         }
 
-        public async Task<int> Create(ItemModel itemModel)
+        public async Task<IActionResult> Create(ItemModel itemModel)
         {
+            var existingData = await _context.Items.FirstOrDefaultAsync(x => x.Name.ToLower() == itemModel.Name.ToLower());
+            if (existingData != null)
+            {
+                return new OkObjectResult(new { Success = false, Message = "Item with the same name already exists." });
+            }
+
             var item = new ItemModel
             {
                 Id = itemModel.Id,
@@ -55,8 +62,11 @@ namespace InventoryManagementSystem.Services
 
             _context.Items.Add(item);
             await _context.SaveChangesAsync();
-            return item.Id;
+
+            return new OkObjectResult(new { Success = true });
         }
+
+
 
         public async Task<bool> Delete(int id)
         {
@@ -72,21 +82,20 @@ namespace InventoryManagementSystem.Services
             return true;
         }
 
-        public async Task<bool> Update(ItemModel itemModel)
+        public async Task<IActionResult> Update(ItemModel itemModel)
         {
             var item = await _context.Items.FindAsync(itemModel.Id);
-
-            if (item == null)
+            var existingData = _context.Items.Any(x => x.Name.ToLower() == itemModel.Name.ToLower() && x.Id != itemModel.Id);
+            if (existingData)
             {
-                return false;
+                return new OkObjectResult(new {Success=false, Message = "Item with the same name already exists." });
             }
 
             item.Name = itemModel.Name;
             item.Unit = itemModel.Unit;
             item.Category = itemModel.Category;
-
             await _context.SaveChangesAsync();
-            return true;
+            return new OkObjectResult(new {Success = true, Data = itemModel});
         }
     }
 }

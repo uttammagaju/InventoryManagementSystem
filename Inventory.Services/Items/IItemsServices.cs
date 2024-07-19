@@ -1,4 +1,5 @@
 ﻿using InventoryManagementSystem.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryManagementSystem.Services
 {
@@ -6,8 +7,8 @@ namespace InventoryManagementSystem.Services
     {
         Task<List<ItemModel>> GetAll();
         Task<ItemModel> GetById(int id);
-        Task<int> Create(ItemModel item);
-        Task<bool> Update(ItemModel item);
+        Task<IActionResult> Create(ItemModel item);
+        Task<IActionResult> Update(ItemModel item);
         Task<bool> Delete(int id);
     }
 }

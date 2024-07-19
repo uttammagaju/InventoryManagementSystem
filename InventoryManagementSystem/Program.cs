@@ -14,6 +14,9 @@ builder.Services.AddTransient<ICustomerServices, CustomerServices>();
 builder.Services.AddScoped<IItemsServices, ItemsServices>();
 builder.Services.AddScoped<ISalesReportServices, SalesReportServices>();
 builder.Services.AddScoped<IUserService, UserServices>();
+builder.Services.AddTransient<IVendorServices, VendorServices>();
+builder.Services.AddTransient<IPurchasesReportServices, PurchasesReportServices>();
+
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(config =>
