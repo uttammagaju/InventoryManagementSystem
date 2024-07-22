@@ -140,7 +140,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Are you sure you want to delete the vendor <span data-bind="text: PurchaseToBeDelete() ? PurchaseToBeDelete().Id() : ''"></span>?
+                Are you sure you want to delete the purchase from vendor : <span data-bind="text: PurchaseToBeDelete() ? PurchaseToBeDelete().VendorName() : ''"></span>?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

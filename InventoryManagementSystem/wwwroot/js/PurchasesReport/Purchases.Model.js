@@ -12,7 +12,7 @@ var PurchaseMasterVM = function (item, parent) {
         return new PurchaseDetailsVM(item, self);
     }));
     self.BillAmount = ko.computed(() => {
-        return self.Purchases().reduce((sum, item) => sum + parseFloat(item.Amount() || 0), 0);
+        return self.Purchases().reduce((sum, item) => sum + parseFloat(item.Price() || 0), 0);
     });
 
     self.CalculatePercentage = ko.computed(() => {
@@ -25,7 +25,8 @@ var PurchaseMasterVM = function (item, parent) {
 }
 
 
-var PurchaseDetailsVM = function (item,parent) {
+
+var PurchaseDetailsVM = function (item, parent) {
     var self = this;
     item = item || {};
     self.Id = ko.observable(item.id || 0);
@@ -33,19 +34,22 @@ var PurchaseDetailsVM = function (item,parent) {
     self.Unit = ko.observable(item.unit || '');
     self.Quantity = ko.observable(item.quantity || 0);
     self.Amount = ko.observable(item.amount || '');
-    
-    //self.ItemId.subscribe(function (newValue) {
-    //    var selectedItem = parent.ItemsNameVM().find(function (item) {
-    //        return item.Id() === newValue;
-    //    });
+    self.Price = ko.computed(function () {
+        return self.Quantity() * self.Amount();
+    });
+    self.ItemId.subscribe(function (newValue) {
+        var selectedItem = parent.ItemsNameList().find(function (item) {
+            return item.Id() === newValue;
+        });
 
-    //    if (selectedItem) {
-    //        self.Unit(selectedItem.Unit());
-    //    } else {
-    //        self.Unit('');
-    //    }
-    //});
+        if (selectedItem) {
+            self.Unit(selectedItem.Unit());
+        } else {
+            self.Unit('');
+        }
+    });
 }
+
 
 var VendorsNameVM = function (item) {
     var self = this;

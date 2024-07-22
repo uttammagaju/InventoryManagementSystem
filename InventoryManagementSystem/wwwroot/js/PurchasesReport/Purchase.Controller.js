@@ -19,7 +19,7 @@ var PurchasesController = function () {
 
     self.GetData = function () {
         ajax.get(baseUrl + "/GetAll").then(function (result) {
-            console.log(result)
+            console.log(result);
             self.CurrentPurchase(result.map(item => new PurchaseMasterVM(item, self)));
         });
     }
@@ -41,20 +41,20 @@ var PurchasesController = function () {
 
     self.AddItem = function () {
         if (self.IsUpdated()) {
-            self.SelectedPurchase().Purchases.push(new PurchaseDetailsVM());
+            self.SelectedPurchase().Purchases.push(new PurchaseDetailsVM({}, self));
         } else {
-            self.NewPurchase().Purchases.push(new PurchaseDetailsVM());
+            self.NewPurchase().Purchases.push(new PurchaseDetailsVM({}, self));
         }
     }
 
     self.RemoveItem = function (item) {
         if (self.IsUpdated()) {
             self.SelectedPurchase().Purchases.remove(item);
-        }
-        else {
+        } else {
             self.NewPurchase().Purchases.remove(item);
         }
     }
+
     self.DeletePurchase = function (model) {
         self.PurchaseToBeDelete(model);
         setTimeout(function () {
@@ -71,8 +71,8 @@ var PurchasesController = function () {
                     .done(function (result) {
                         console.log("Data received", result);
                         self.CurrentPurchase.push(new PurchaseMasterVM(result, self));
-                        self.resetForm();
-                        self.getData();
+                        self.ResetForm();
+                        self.GetData();
                         $('#orderModal').modal('hide');
                     })
                     .fail(function (err) {
@@ -106,6 +106,7 @@ var PurchasesController = function () {
         self.mode(mode.update);
         $('#orderModal').modal('show');
     }
+
     self.ResetForm = function () {
         self.NewPurchase(new PurchaseMasterVM({}, self));
         self.SelectedPurchase(new PurchaseMasterVM({}, self));
@@ -115,10 +116,10 @@ var PurchasesController = function () {
 
     self.calculateTotal = function () {
         self.totalAmount.notifySubscribers();  // Recalculate the total amount
-    }; 
+    };
 
     self.CloseModel = function () {
-        self.resetForm();
+        self.ResetForm();
     }
 
     self.ResetForm();

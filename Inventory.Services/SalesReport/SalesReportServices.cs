@@ -1,4 +1,5 @@
-﻿using InventoryManagementSystem.Data;
+﻿using Inventory.Entities;
+using InventoryManagementSystem.Data;
 using InventoryManagementSystem.Models;
 using InventoryManagementSystem.Models.VM;
 using Microsoft.EntityFrameworkCore;
@@ -108,36 +109,66 @@ namespace InventoryManagementSystem.Services
 
         public async Task<int> Create(SalesMasterVM salesReport)
         {
-            var masterData = new SalesMasterModel()
+            if (salesReport == null)
             {
-                Id = 0,
-                SalesDate = salesReport.SalesDate,
-                CustomerId = salesReport.CustomerId,
-                InvoiceNumber = salesReport.InvoiceNumber,
-                BillAmount = salesReport.BillAmount,
-                Discount = salesReport.Discount,
-                NetAmount = salesReport.NetAmount,
-            };
-            var masterAdd = _context.SalesMaster.Add(masterData);
-            _context.SaveChanges();
-            if (masterData != null)
-            {
-                var details = from d in salesReport.Sales
-                              select new SalesDetailsModel
-                              {
-                                  Id = 0,
-                                  ItemId = d.ItemId,
-                                  Unit = d.Unit,
-                                  Quantity = d.Quantity,
-                                  Amount = d.Amount,
-                                  Price =d.Price,
-                                  SalesMasterId = masterData.Id,
-                              };
-                _context.SalesDetails.AddRange(details);
-                _context.SaveChanges();
-
+                return 0;
             }
-            return masterAdd.Entity.Id;
+            else
+            {
+                var masterData = new SalesMasterModel()
+                {
+                    Id = 0,
+                    SalesDate = salesReport.SalesDate,
+                    CustomerId = salesReport.CustomerId,
+                    InvoiceNumber = salesReport.InvoiceNumber,
+                    BillAmount = salesReport.BillAmount,
+                    Discount = salesReport.Discount,
+                    NetAmount = salesReport.NetAmount,
+                };
+                var masterAdd = _context.SalesMaster.Add(masterData);
+                _context.SaveChanges();
+                if (masterData != null)
+                {
+                    var details = from d in salesReport.Sales
+                                  select new SalesDetailsModel
+                                  {
+                                      Id = 0,
+                                      ItemId = d.ItemId,
+                                      Unit = d.Unit,
+                                      Quantity = d.Quantity,
+                                      Amount = d.Amount,
+                                      Price = d.Price,
+                                      SalesMasterId = masterData.Id,
+                                  };
+                    _context.SalesDetails.AddRange(details);
+                    _context.SaveChanges();
+                    foreach (var item in details)
+                    {
+                        var exitingData = _context.ItemsCurrentInfo.FirstOrDefault(x => x.ItemId == item.ItemId);
+                        if (exitingData != null)
+                        {
+                            exitingData.quantity -= item.Quantity;
+                            _context.ItemsCurrentInfo.Update(exitingData);
+                            _context.SaveChanges();
+                        }
+
+                        var itemCurrentInfo = new ItemCurrentInfoHistory()
+                        {
+                            Id = 0,
+                            ItemId = item.ItemId,
+                            Quantity = item.Quantity,
+                            TransDate = DateTime.Now,
+                            StockCheckOut = StockCheckOut.Out,
+                            TransactionType = TransactionType.Sales
+                        };
+                        _context.ItemsHistoryInfo.Add(itemCurrentInfo);
+                        _context.SaveChanges();
+
+                    }
+                }
+
+                return masterAdd.Entity.Id;
+            }
         }
 
         public async Task<bool> Update(SalesMasterVM salesReport)
@@ -156,7 +187,39 @@ namespace InventoryManagementSystem.Services
             await _context.SaveChangesAsync();
 
             var existingDetail = _context.SalesDetails.Where(x => x.SalesMasterId == masterData.Id);
-            _context.SalesDetails.RemoveRange(existingDetail);
+            if (existingDetail != null)
+            {
+                foreach (var item in existingDetail)
+                {
+                    var itemCurrent = _context.ItemsCurrentInfo.FirstOrDefault(x => x.ItemId == item.ItemId);
+                    if (itemCurrent != null)
+                    {
+                        itemCurrent.quantity += item.Quantity;
+                        _context.ItemsCurrentInfo.Update(itemCurrent);
+                        _context.SaveChanges();
+
+                    }
+                    else
+                    {
+                        return false;
+                    }
+
+                    var currentHistory = new ItemCurrentInfoHistory()
+                    {
+                        Id = 0,
+                        ItemId = item.ItemId,
+                        Quantity = item.Quantity,
+                        TransDate = DateTime.Now,
+                        StockCheckOut = StockCheckOut.In,
+                        TransactionType = TransactionType.Purchase
+                    };
+                    _context.ItemsHistoryInfo.Add(currentHistory);
+                    _context.SaveChanges();
+                }
+                _context.SalesDetails.RemoveRange(existingDetail);
+
+            }
+            else { return false; }
 
             var details = from d in salesReport.Sales
                           select new SalesDetailsModel
@@ -170,28 +233,69 @@ namespace InventoryManagementSystem.Services
                           };
             _context.SalesDetails.AddRange(details);
             _context.SaveChanges();
+
+            foreach (var item in details)
+            {
+                var currentInfo = _context.ItemsCurrentInfo.FirstOrDefault(x => x.ItemId == item.ItemId);
+                currentInfo.quantity -= item.Quantity;
+                _context.ItemsCurrentInfo.Update(currentInfo);
+                _context.SaveChanges();
+
+                var historyinfo = new ItemCurrentInfoHistory()
+                {
+                    Id = 0,
+                    ItemId = item.ItemId,
+                    Quantity = item.Quantity,
+                    TransDate = DateTime.Now,
+                    TransactionType = TransactionType.Sales,
+                    StockCheckOut = StockCheckOut.Out
+                };
+                _context.ItemsHistoryInfo.Add(historyinfo);
+                _context.SaveChanges();
+            }
             return true;
 
         }
 
         public async Task<bool> Delete(int id)
         {
-           var masterDate = _context.SalesMaster.Find(id);
-           if(masterDate == null)
+            var masterDate = _context.SalesMaster.Find(id);
+            if (masterDate == null)
             {
                 return false;
             }
             else
             {
-                var details = _context.SalesDetails.Where(x => x.SalesMasterId ==  masterDate.Id).ToList();
-                if(details.Count > 0)
+                var details = _context.SalesDetails.Where(x => x.SalesMasterId == masterDate.Id).ToList();
+                foreach( var item in details)
+                {
+                    var currentInfo = _context.ItemsCurrentInfo.FirstOrDefault(x => x.ItemId == item.ItemId);
+                    if(currentInfo != null)
+                    {
+                        currentInfo.quantity -= item.Quantity;
+                        _context.ItemsCurrentInfo.Update(currentInfo);
+                        _context.SaveChanges();
+                    }
+                    var currentHistory = new ItemCurrentInfoHistory()
+                    {
+                        Id = 0,
+                        ItemId = item.ItemId,
+                        Quantity = item.Quantity,
+                        TransDate = DateTime.Now,
+                        StockCheckOut = StockCheckOut.Out,
+                        TransactionType = TransactionType.Sales,
+                    };
+                    _context.ItemsHistoryInfo.Add(currentHistory);
+                    _context.SaveChanges();
+                }
+                if (details.Count > 0)
                 {
                     _context.SalesDetails.RemoveRange(details);
                     _context.SaveChanges();
                 }
                 _context.SalesMaster.Remove(masterDate);
                 _context.SaveChanges();
-                
+
             }
             return true;
         }
