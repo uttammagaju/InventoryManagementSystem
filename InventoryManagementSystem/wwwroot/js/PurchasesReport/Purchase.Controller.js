@@ -127,9 +127,11 @@ var PurchasesController = function () {
     self.confirmDelete = function () {
         var model = self.PurchaseToBeDelete();
         if (model) {
-            ajax.delete(baseUrl + "?id=" + model.Id())
+            ajax.delete(baseUrl + "/Delete?id=" + model.Id())
                 .done((result) => {
-                    self.CurrentCustomer.remove(model);
+                    self.CurrentCustomer.remove(function (item) {
+                        return item.Id() === model.Id();
+                    });
                     $('#deleteConfirmModal').modal('hide');
                 })
                 .fail((err) => {

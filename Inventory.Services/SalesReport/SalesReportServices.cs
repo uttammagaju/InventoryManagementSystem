@@ -140,16 +140,19 @@ namespace InventoryManagementSystem.Services
                                       Price = d.Price,
                                       SalesMasterId = masterData.Id,
                                   };
-                    _context.SalesDetails.AddRange(details);
-                    _context.SaveChanges();
+                    
                     foreach (var item in details)
                     {
                         var exitingData = _context.ItemsCurrentInfo.FirstOrDefault(x => x.ItemId == item.ItemId);
-                        if (exitingData != null)
+                        if (exitingData != null && exitingData.quantity>0 )
                         {
                             exitingData.quantity -= item.Quantity;
                             _context.ItemsCurrentInfo.Update(exitingData);
                             _context.SaveChanges();
+                        }
+                        else
+                        {
+                            throw new Exception("quantity is zero");
                         }
 
                         var itemCurrentInfo = new ItemCurrentInfoHistory()
@@ -165,6 +168,8 @@ namespace InventoryManagementSystem.Services
                         _context.SaveChanges();
 
                     }
+                    _context.SalesDetails.AddRange(details);
+                    _context.SaveChanges();
                 }
 
                 return masterAdd.Entity.Id;
@@ -270,12 +275,17 @@ namespace InventoryManagementSystem.Services
                 foreach( var item in details)
                 {
                     var currentInfo = _context.ItemsCurrentInfo.FirstOrDefault(x => x.ItemId == item.ItemId);
-                    if(currentInfo != null)
+                    if (currentInfo.quantity > 0)
                     {
                         currentInfo.quantity -= item.Quantity;
                         _context.ItemsCurrentInfo.Update(currentInfo);
                         _context.SaveChanges();
                     }
+                    else
+                    {
+                        throw new Exception("item quntity is zero");
+                    }
+
                     var currentHistory = new ItemCurrentInfoHistory()
                     {
                         Id = 0,

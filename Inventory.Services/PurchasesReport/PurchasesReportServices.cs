@@ -295,9 +295,18 @@ namespace Inventory.Services.PurchasesReport
                     foreach (var item in details)
                     {
                         var itemCurrentInfo = _context.ItemsCurrentInfo.FirstOrDefault(x => x.ItemId == item.ItemId);
-                        itemCurrentInfo.quantity -= item.Quantity;
-                        _context.ItemsCurrentInfo.Update(itemCurrentInfo);
-                        _context.SaveChanges();
+                        if (itemCurrentInfo.quantity>0)
+                        {
+                            itemCurrentInfo.quantity -= item.Quantity;
+                            _context.ItemsCurrentInfo.Update(itemCurrentInfo);
+                            _context.SaveChanges();
+                        }
+                        else
+                        {
+                            throw new Exception("item quntity is zero");
+                        }
+
+                       
                         var itemCurrentInfoHistory = new ItemCurrentInfoHistory
                         {
                             Id = 0,
