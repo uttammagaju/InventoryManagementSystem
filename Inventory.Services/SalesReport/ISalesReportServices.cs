@@ -1,5 +1,6 @@
 ﻿using InventoryManagementSystem.Models;
 using InventoryManagementSystem.Models.VM;
+using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryManagementSystem.Services
 {
@@ -7,7 +8,7 @@ namespace InventoryManagementSystem.Services
     {
         Task<List<SalesMasterVM>> GetAll();
         Task<SalesMasterVM> GetById(int id);
-        Task<int> Create(SalesMasterVM salesReport);
+        Task<ActionResult> Create(SalesMasterVM salesReport);
         Task<bool> Update(SalesMasterVM salesReport);
         Task<bool> Delete(int id);
         Task<IEnumerable<GetCustomersNameVM>> GetCustomersName();

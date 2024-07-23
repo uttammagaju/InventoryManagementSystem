@@ -45,6 +45,7 @@ namespace InventoryManagementSystem.Services
 
         public async Task<int> Create(CustomerModel customerModel)
         {
+           
             var Customer = new CustomerModel
             {
                 FullName = customerModel.FullName,

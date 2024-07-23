@@ -1,6 +1,7 @@
 ﻿using Inventory.Entities;
 using InventoryManagementSystem.Data;
 using InventoryManagementSystem.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace InventoryManagementSystem.Services
@@ -75,17 +76,24 @@ namespace InventoryManagementSystem.Services
             return true;
         }
 
-        public async Task<bool> Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
+            var purchase = await _context.PurchasesMaster.Where(c => c.VendorId == id).ToListAsync();
+            if (purchase.Any())
+            {
+                return new OkObjectResult(new { Success = false, Message = "Vendor is used in other table also" });
+            }
             var vendor = await _context.Vendors.FirstOrDefaultAsync(c => c.Id == id);
             if (vendor == null)
             {
-                return false;
+                return new OkObjectResult(new { Success = false, Message = "The Vendor table is empty" });
+
             }
 
             _context.Vendors.Remove(vendor);
             await _context.SaveChangesAsync();
-            return true;
+            return new OkObjectResult(new { Success = true, Message = "Vendor delete successfully " });
+
         }
         public async Task<List<VendorModel>> SearchVendor(string searchTerm)
         {

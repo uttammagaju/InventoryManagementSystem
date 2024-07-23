@@ -2,6 +2,7 @@
 using InventoryManagementSystem.Data;
 using InventoryManagementSystem.Models;
 using InventoryManagementSystem.Models.VM;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace InventoryManagementSystem.Services
@@ -9,9 +10,20 @@ namespace InventoryManagementSystem.Services
     public class SalesReportServices : ISalesReportServices
     {
         private readonly ApplicationDbContext _context;
+
+        
         public SalesReportServices(ApplicationDbContext context)
         {
             _context = context;
+        }
+        private string ItemName (int id)
+        {
+            return _context.Items.FirstOrDefault(x => x.Id == id).Name;
+        }
+        private bool IsItemAvaliable(int itemId, int quantity)
+        {
+            var itemCurrentInfo = _context.ItemsCurrentInfo.FirstOrDefault(x => x.ItemId == itemId);
+            return itemCurrentInfo != null && itemCurrentInfo.quantity >= quantity;
         }
         public async Task<List<SalesMasterVM>> GetAll()
         {
@@ -98,81 +110,95 @@ namespace InventoryManagementSystem.Services
 
         public async Task<IEnumerable<GetItemsNameVM>> GetItemsName()
         {
-            var ItemsData = _context.Items.Select(item => new GetItemsNameVM
-            {
-                Id = item.Id,
-                ItemName = item.Name,
-                Unit = item.Unit,
-            }).ToList();
-            return ItemsData;
+            var result = from item in _context.Items
+                         join info in _context.ItemsCurrentInfo
+                         on item.Id equals info.ItemId
+                         select new GetItemsNameVM
+                         {
+                             Id = item.Id,
+                             ItemName = item.Name,
+                             Unit = item.Unit,
+                             Quantity = info.quantity
+                         };
+            return await result.ToListAsync();
         }
 
-        public async Task<int> Create(SalesMasterVM salesReport)
+        public async Task<ActionResult> Create(SalesMasterVM salesReport)
         {
-            if (salesReport == null)
+            if (salesReport.CustomerId == 0)
             {
-                return 0;
+                return new OkObjectResult(new { Success = false, Message = "sale form is not completly filled. Please verify Again!" });
             }
             else
             {
-                var masterData = new SalesMasterModel()
+                foreach(var item in salesReport.Sales)
                 {
-                    Id = 0,
-                    SalesDate = salesReport.SalesDate,
-                    CustomerId = salesReport.CustomerId,
-                    InvoiceNumber = salesReport.InvoiceNumber,
-                    BillAmount = salesReport.BillAmount,
-                    Discount = salesReport.Discount,
-                    NetAmount = salesReport.NetAmount,
-                };
-                var masterAdd = _context.SalesMaster.Add(masterData);
-                _context.SaveChanges();
-                if (masterData != null)
-                {
-                    var details = from d in salesReport.Sales
-                                  select new SalesDetailsModel
-                                  {
-                                      Id = 0,
-                                      ItemId = d.ItemId,
-                                      Unit = d.Unit,
-                                      Quantity = d.Quantity,
-                                      Amount = d.Amount,
-                                      Price = d.Price,
-                                      SalesMasterId = masterData.Id,
-                                  };
-                    
-                    foreach (var item in details)
+                    if (!IsItemAvaliable(item.ItemId, item.Quantity))
                     {
-                        var exitingData = _context.ItemsCurrentInfo.FirstOrDefault(x => x.ItemId == item.ItemId);
-                        if (exitingData != null && exitingData.quantity>0 )
-                        {
-                            exitingData.quantity -= item.Quantity;
-                            _context.ItemsCurrentInfo.Update(exitingData);
-                            _context.SaveChanges();
-                        }
-                        else
-                        {
-                            throw new Exception("quantity is zero");
-                        }
-
-                        var itemCurrentInfo = new ItemCurrentInfoHistory()
-                        {
-                            Id = 0,
-                            ItemId = item.ItemId,
-                            Quantity = item.Quantity,
-                            TransDate = DateTime.Now,
-                            StockCheckOut = StockCheckOut.Out,
-                            TransactionType = TransactionType.Sales
-                        };
-                        _context.ItemsHistoryInfo.Add(itemCurrentInfo);
-                        _context.SaveChanges();
-
+                        var name = ItemName(item.ItemId);
+                        return new OkObjectResult(new { Success = false, Message = $"Item {name} quentity is less that you wanna buy." });
                     }
-                    _context.SalesDetails.AddRange(details);
-                    _context.SaveChanges();
                 }
+                
+                
+                    var masterData = new SalesMasterModel()
+                    {
+                        Id = 0,
+                        SalesDate = salesReport.SalesDate,
+                        CustomerId = salesReport.CustomerId,
+                        InvoiceNumber = salesReport.InvoiceNumber,
+                        BillAmount = salesReport.BillAmount,
+                        Discount = salesReport.Discount,
+                        NetAmount = salesReport.NetAmount,
+                    };
+                    var masterAdd = _context.SalesMaster.Add(masterData);
+                    _context.SaveChanges();
+                    if (masterData != null)
+                    {
+                        var details = from d in salesReport.Sales
+                                      select new SalesDetailsModel
+                                      {
+                                          Id = 0,
+                                          ItemId = d.ItemId,
+                                          Unit = d.Unit,
+                                          Quantity = d.Quantity,
+                                          Amount = d.Amount,
+                                          Price = d.Price,
+                                          SalesMasterId = masterData.Id,
+                                      };
 
-                return masterAdd.Entity.Id;
+                        foreach (var item in details)
+                        {
+                            var exitingData = _context.ItemsCurrentInfo.FirstOrDefault(x => x.ItemId == item.ItemId);
+                            if (exitingData != null && exitingData.quantity > 0)
+                            {
+                                exitingData.quantity -= item.Quantity;
+                                _context.ItemsCurrentInfo.Update(exitingData);
+                                _context.SaveChanges();
+                            }
+                            else
+                            {
+                                throw new Exception("quantity is zero");
+                            }
+
+                            var itemCurrentInfo = new ItemCurrentInfoHistory()
+                            {
+                                Id = 0,
+                                ItemId = item.ItemId,
+                                Quantity = item.Quantity,
+                                TransDate = DateTime.Now,
+                                StockCheckOut = StockCheckOut.Out,
+                                TransactionType = TransactionType.Sales
+                            };
+                            _context.ItemsHistoryInfo.Add(itemCurrentInfo);
+                            _context.SaveChanges();
+
+                        }
+                        _context.SalesDetails.AddRange(details);
+                        _context.SaveChanges();
+                    }
+                return new OkObjectResult(new { Success = true, Message = "Sales add successfully" });
+                
             }
         }
 

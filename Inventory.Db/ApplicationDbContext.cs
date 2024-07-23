@@ -1,6 +1,7 @@
 ﻿using Inventory.Entities;
 using InventoryManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace InventoryManagementSystem.Data
 {
@@ -30,6 +31,7 @@ namespace InventoryManagementSystem.Data
             modelBuilder.Entity<UserModel>().HasData(
                 new UserModel { Id = 1, Username = "Admin", Password = "Admin@123", Roles = "Admin", Email = "Admin123@gmail.com" });
         }
+        
     }
 
 }

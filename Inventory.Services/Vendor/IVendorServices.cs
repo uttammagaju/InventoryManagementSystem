@@ -1,5 +1,6 @@
 ﻿using Inventory.Entities;
 using InventoryManagementSystem.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryManagementSystem.Services
 {
@@ -9,7 +10,7 @@ namespace InventoryManagementSystem.Services
         Task<VendorModel> GetById(int id);
         Task<int> Create (VendorModel vendor);
         Task<bool> Update (VendorModel vendor);
-        Task<bool> Delete (int id);
+        Task<ActionResult> Delete (int id);
         Task<List<VendorModel>> SearchVendor(string searchTerm);
     }
 }

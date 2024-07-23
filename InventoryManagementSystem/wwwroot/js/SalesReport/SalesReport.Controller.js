@@ -35,8 +35,11 @@ var SalesReportController = function () {
         ajax.get(baseUrl + "/GetItemsName").then(function (result) {
             self.ItemsNameList(result.map(item => new ItemNameVM(item)));
         });
-    }
-    self.getItemsName();
+    };
+
+    self.getItemsName(); 
+   
+
 
     self.AddOrder = function () {
         var orderData = ko.toJS(self.IsUpdated() ? self.SelectedOrder : self.NewOrder);
@@ -74,11 +77,16 @@ var SalesReportController = function () {
             case mode.create:
                 ajax.post(baseUrl + "/Create", JSON.stringify(orderData))
                     .done(function (result) {
-                        console.log("Data received", result);
-                        self.CurrentOrder.push(new SalesMasterVM(result, self));
-                        self.resetForm();
-                        self.getData();
-                        $('#orderModal').modal('hide');
+                        if (result.success) {
+                            console.log("Data received", result);
+                            self.CurrentOrder.push(new SalesMasterVM(result, self));
+                            self.resetForm();
+                            self.getData();
+                            $('#orderModal').modal('hide');
+                        }
+                        else {
+                            alert(result.message)
+                        }
                     })
                     .fail(function (err) {
                         console.log("Error adding order:", err);
@@ -170,7 +178,7 @@ var SalesReportController = function () {
         self.NewOrder(new SalesMasterVM({}, self));
         self.SelectedOrder(new SalesMasterVM({},self));
         self.IsUpdated(false);
-        self.AddItem(); // Add an initial empty item
+       // self.AddItem(); // Add an initial empty item
     }
 
     // Remove Item

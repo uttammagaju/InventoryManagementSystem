@@ -13,7 +13,7 @@ namespace InventoryManagementSystem.Services
         {
             _context = context;
         }
-
+        
         public async Task<List<ItemModel>> GetAll()
         {
             return await _context.Items
@@ -63,8 +63,9 @@ namespace InventoryManagementSystem.Services
             _context.Items.Add(item);
             await _context.SaveChangesAsync();
 
-            return new OkObjectResult(new { Success = true });
+            return new OkObjectResult(new { Success = true, item = item });
         }
+
 
 
 

@@ -41,7 +41,7 @@ namespace InventoryManagementSystem.Controllers.API
         }
 
         [HttpDelete]
-        public async Task<bool> delete (int id)
+        public async Task<ActionResult> delete (int id)
         {
             return await _vendor.Delete(id);
         }

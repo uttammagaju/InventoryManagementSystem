@@ -1,7 +1,7 @@
 ﻿<div class="container mt-4">
-    <h2>Order Management System</h2>
+    <h2>Sales </h2>
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#orderModal">
-        Create New Order
+        Create Sales Order
     </button>
 
     <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -53,6 +53,7 @@
                                 <tr>
                                     <th>Product Name</th>
                                     <th>Unit</th>
+                                    <th> Avaliable Quantity</th>
                                     <th>Quantity</th>
                                     <th>Price</th>
                                     <th>Amount</th>
@@ -72,6 +73,7 @@
 
                                     </td>
                                     <td><input type="text" class="form-control" data-bind="value: Unit" readonly></td>
+                                    <td><input type="text" class="form-control" data-bind="value: AvailableQuantity" readonly></td>
                                     <td><input type="number" class="form-control" data-bind="value: Quantity, valueUpdate : 'input' @* ,event:{change: $root.calculateTotal} *@"></td>
                                     <td><input type="number" step="0.01" class="form-control" data-bind="value: Price, valueUpdate : 'input' @* ,event:{change: $root.calculateTotal} *@" /></td>
                                     <td><input type="number" step="0.01" class="form-control" data-bind="value: Amount, enable: false, valueUpdate : 'input' " readonly  /></td>

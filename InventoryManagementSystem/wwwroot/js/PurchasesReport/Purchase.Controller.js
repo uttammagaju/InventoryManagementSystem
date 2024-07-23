@@ -69,11 +69,16 @@ var PurchasesController = function () {
                 debugger
                 ajax.post(baseUrl + "/Create", JSON.stringify(purchaseData))
                     .done(function (result) {
-                        console.log("Data received", result);
-                        self.CurrentPurchase.push(new PurchaseMasterVM(result, self));
-                        self.ResetForm();
-                        self.GetData();
-                        $('#orderModal').modal('hide');
+                        if (result.success) {
+                            console.log("Data received", result);
+                            self.CurrentPurchase.push(new PurchaseMasterVM(result, self));
+                            self.ResetForm();
+                            self.GetData();
+                            $('#orderModal').modal('hide');
+                        }
+                        else {
+                            alert(result.message);
+                        }
                     })
                     .fail(function (err) {
                         console.log("Error adding order:", err);
@@ -111,7 +116,7 @@ var PurchasesController = function () {
         self.NewPurchase(new PurchaseMasterVM({}, self));
         self.SelectedPurchase(new PurchaseMasterVM({}, self));
         self.IsUpdated(false);
-        self.AddItem();
+        //self.AddItem();
     }
 
     self.calculateTotal = function () {

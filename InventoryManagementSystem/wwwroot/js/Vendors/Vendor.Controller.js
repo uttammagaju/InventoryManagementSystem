@@ -53,10 +53,17 @@ var VendorController = function () {
             case 1:
                 ajax.post(baseUrl, JSON.stringify(vendorData))
                     .done(function (result) {
-                        self.CurrentVendor.push(new VendorModel(result));
-                        self.GetDatas();
-                        self.CloseModel();
-                        $('#vendorModal').modal('hide');
+                        if (result.success) {
+                            self.CurrentVendor.push(new VendorModel(result));
+                            self.GetDatas();
+                            self.CloseModel();
+                            $('#vendorModal').modal('hide');
+                            alert(result.message)
+                        }
+                        else {
+                            alert(result.message);
+                        }
+                        
                     })
                 break;
             case 2:
@@ -82,9 +89,16 @@ var VendorController = function () {
         var model = self.vendorToDelete();
         if (model) {
             ajax.delete(baseUrl + "?id=" + model.Id())
+          
                 .done((result) => {
-                    self.CurrentVendor.remove(model);
-                    $('#deleteConfirmModal').modal('hide');
+                    if (result.success) {
+                        self.CurrentVendor.remove(model);
+                        $('#deleteConfirmModal').modal('hide');
+                    }
+                    else {
+                        alert(result.message)
+                    }
+                   
                 })
                 .fail((err) => {
                     console.log(err);

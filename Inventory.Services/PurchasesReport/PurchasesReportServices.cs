@@ -104,15 +104,16 @@ namespace Inventory.Services.PurchasesReport
             return ItemsData;
         }
 
-        public async Task<int> Create(PurchasesMasterVM purchaseReport)
+        public async Task<ActionResult> Create(PurchasesMasterVM purchaseReport)
         {
 
             using (_context.Database.BeginTransaction())
             {
-                if (purchaseReport.Purchases == null)
+                if (purchaseReport.Purchases.Count == 0)
                 {
-                    return 0;
+                    return new OkObjectResult(new { Success = false, Message = "There must be one item in purchase." });
                 }
+                
                 else
                 {
                     var masterData = new PurchaseMasterModel()
@@ -182,7 +183,7 @@ namespace Inventory.Services.PurchasesReport
                     }
 
                     // _context.Database.RollbackTransaction();
-                    return masterAdd.Entity.Id;
+                    return new OkObjectResult(new { Success = true, Message = "Purchase Successfully" });
                 }
 
             }

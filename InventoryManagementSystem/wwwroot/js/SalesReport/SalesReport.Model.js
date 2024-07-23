@@ -35,13 +35,14 @@ var SalesDetailVM = function (item, parent) {
     self.Id = ko.observable(item.id || 0);
     self.ItemId = ko.observable(item.itemId || '');
     self.Unit = ko.observable(item.unit || '');
+    self.AvailableQuantity = ko.observable(item.availableQuantity || 0);
     self.Quantity = ko.observable(item.quantity || 0);
     self.Price = ko.observable(item.price || 0);
     self.Amount = ko.computed(function () {
         return self.Quantity() * self.Price();
     });
 
-    // Subscribe to changes in ItemId to update Unit
+    // Subscribe to changes in ItemId to update Unit, quantity
     self.ItemId.subscribe(function (newValue) {
         var selectedItem = parent.ItemsNameList().find(function (item) {
             return item.Id() === newValue;
@@ -49,10 +50,13 @@ var SalesDetailVM = function (item, parent) {
 
         if (selectedItem) {
             self.Unit(selectedItem.Unit());
+            self.AvailableQuantity(selectedItem.Quantity()); 
         } else {
             self.Unit('');
+            self.AvailableQuantity(0);
         }
     });
+
 };
 
 
@@ -71,5 +75,5 @@ var ItemNameVM = function (item) {
     self.Id = ko.observable(item.id || 0);
     self.ItemName = ko.observable(item.itemName || '');
     self.Unit = ko.observable(item.unit || 0);
-
+    self.Quantity = ko.observable(item.quantity || 0);
 };

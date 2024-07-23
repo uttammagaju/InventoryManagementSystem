@@ -43,7 +43,7 @@ namespace InventoryManagementSystem.Controllers.API
             return _purchasesReportServices.GetItemsName();
         }
         [HttpPost]
-        public Task<int> Create(PurchasesMasterVM purchases)
+        public Task<ActionResult> Create(PurchasesMasterVM purchases)
         {
             return _purchasesReportServices.Create(purchases);
         }

@@ -1,5 +1,6 @@
 ﻿using InventoryManagementSystem.Models;
 using InventoryManagementSystem.Models.VM;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Inventory.Services.PurchasesReport
 {
@@ -7,7 +8,7 @@ namespace Inventory.Services.PurchasesReport
     {
         Task<List<PurchasesMasterVM>> GetAll();
         Task<PurchasesMasterVM> GetById(int id);
-        Task<int> Create(PurchasesMasterVM purchasesReport);
+        Task<ActionResult> Create(PurchasesMasterVM purchasesReport);
         Task<bool> Update(PurchasesMasterVM purchaseReport);
         Task<bool> Delete(int id);
         Task<IEnumerable<GetVendorsNameVM>> GetVendorsName();

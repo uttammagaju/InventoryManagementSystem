@@ -56,19 +56,30 @@ var ItemController = function () {
             case mode.create:
                 ajax.post(baseUrl, JSON.stringify(ItemData))
                     .done(function (result) {
-                        self.CurrentItem.push(new ItemModel(result));
-                        self.CloseModel();
-                        self.GetDatas();
-                        $('#itemModal').modal('hide');
+                        if (result.success) {
+                            self.CurrentItem.push(new ItemModel(result));
+                            self.CloseModel();
+                            self.GetDatas();
+                            $('#itemModal').modal('hide');
+                        } else {
+                            alert(result.message);
+                        }
+                        
                     });
                 break;
             case mode.update:
                 ajax.put(baseUrl, JSON.stringify(ItemData))
                     .done(function (result) {
-                        self.CurrentItem.replace(self.SelectedItem(), new ItemModel(result));
-                        self.CloseModel();
-                        self.GetDatas();
-                        $('#itemModal').modal('hide');
+                        if (result.success) {
+                            self.CurrentItem.replace(self.SelectedItem(), new ItemModel(result));
+                            self.CloseModel();
+                            self.GetDatas();
+                            $('#itemModal').modal('hide');
+                        }
+                        else {
+                            alert(result.message);
+                        }
+                        
                     });
                 break;
         }

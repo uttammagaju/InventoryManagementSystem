@@ -1,7 +1,7 @@
 ﻿<div class="container mt-4">
-    <h2>Order Management System</h2>
+    <h2>Purchase</h2>
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#orderModal">
-        Create New Order
+        Create Purchase Order
     </button>
 
     <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -35,7 +35,7 @@
                             </div>
                             <div class="col-md-4 form-group">
                                 <label>BillAmount:</label>
-                                <input type="text" class="form-control" data-bind="value: BillAmount, valueUpdate : 'input'" *@>
+                                <input type="text" class="form-control" readonly data-bind="value: BillAmount, valueUpdate : 'input'" *@>
                             </div>
                             <div class="col-md-4 form-group">
                                 <label>Discount(%):</label>
@@ -43,7 +43,7 @@
                             </div>
                             <div class="col-md-4 form-group">
                                 <label>NetAmount:</label>
-                                <input type="text" class="form-control" data-bind="value:NetAmount,  valueUpdate:'input'">
+                                <input type="text" class="form-control" readonly data-bind="value:NetAmount,  valueUpdate:'input'">
                             </div>
                         </div>
                         <h4>Order Items</h4>
@@ -69,7 +69,7 @@
                                         </select>
 
                                     </td>
-                                    <td><input type="text" class="form-control" data-bind="value: Unit" ></td>
+                                    <td><input type="text" class="form-control" readonly data-bind="value: Unit" ></td>
                                     <td><input type="number" class="form-control" data-bind="value: Quantity, valueUpdate : 'input' @*,event:{change: $root.calculateTotal} *@"></td>
                                     <td><input type="number" step="0.01" class="form-control" data-bind="value: Amount,  valueUpdate : 'input' "  /></td>
                                     <td>
