@@ -4,7 +4,12 @@ var PurchaseMasterVM = function (item, parent) {
     var self = this;
     item = item || {};
     self.Id = ko.observable(item.id || 0);
-    self.VendorId = ko.observable(item.vendorId || 0);
+    self.VendorId = ko.observable(item.vendorId || 0).extend({
+        required: {
+            message: "Vendor is required"
+        },
+        validVendor: {} // Custom validation
+    });
     self.VendorName = ko.observable(item.vendorName || '');
     self.InvoiceNumber = ko.observable(item.invoiceNumber || 0);
     self.Discount = ko.observable(item.discount || 0);

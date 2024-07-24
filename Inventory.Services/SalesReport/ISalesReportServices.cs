@@ -9,7 +9,7 @@ namespace InventoryManagementSystem.Services
         Task<List<SalesMasterVM>> GetAll();
         Task<SalesMasterVM> GetById(int id);
         Task<ActionResult> Create(SalesMasterVM salesReport);
-        Task<bool> Update(SalesMasterVM salesReport);
+        Task<ActionResult> Update(SalesMasterVM salesReport);
         Task<bool> Delete(int id);
         Task<IEnumerable<GetCustomersNameVM>> GetCustomersName();
         Task<IEnumerable<GetItemsNameVM>> GetItemsName();

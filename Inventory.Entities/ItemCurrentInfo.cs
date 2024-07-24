@@ -17,6 +17,7 @@ namespace Inventory.Entities
         [ForeignKey("ItemId")]
         [JsonIgnore]
         public virtual ItemModel Item { get; set; }
+       
 
         public int quantity { get; set; }
     }

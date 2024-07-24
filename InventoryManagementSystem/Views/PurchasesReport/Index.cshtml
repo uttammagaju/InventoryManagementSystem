@@ -10,8 +10,8 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="orderModalLabel">
                        
-                         <span data-bind="ifnot: IsUpdated">Create New Sales</span> 
-                         <span data-bind="if: IsUpdated">Update sales</span> 
+                         <span data-bind="ifnot: IsUpdated">Create New Purchase</span> 
+                         <span data-bind="if: IsUpdated">Update Purchase</span> 
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @* data-bind="click: CloseModel" *@></button>
                 </div>
@@ -28,6 +28,7 @@
                                             value: VendorId,
                                             optionsCaption: 'Choose Vendor'">
                                 </select>
+                                <div class="text-danger" data-bind="validationMessage: ItemId"></div>
                             </div>
                             <div class="col-md-4 form-group">
                                 <label>Invoice Number</label>
@@ -151,6 +152,7 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout-validation/2.0.3/knockout.validation.min.js"></script>
     <script src="~/js/knockout.js"></script>
     <script src="~/js/purchasesreport/purchases.model.js"></script>
     <script src="~/js/purchasesreport/purchase.controller.js"></script>

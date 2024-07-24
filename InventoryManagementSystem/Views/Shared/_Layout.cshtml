@@ -30,6 +30,12 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="PurchasesReport" asp-action="Index">Purchase</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="ItemsHistory" asp-action="Index">Items History</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="CurrentItemInfo" asp-action="Index">Current Item Stock</a>
+                            </li>
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item dropdown">

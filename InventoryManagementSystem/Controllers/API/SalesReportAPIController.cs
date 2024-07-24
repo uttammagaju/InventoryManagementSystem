@@ -44,7 +44,7 @@ namespace InventoryManagementSystem.Controllers.API
             return _salesReportServices.Create(salesReport);
         }
         [HttpPut]
-        public Task<bool> Update(SalesMasterVM salesReport)
+        public Task<ActionResult> Update(SalesMasterVM salesReport)
         {
             return _salesReportServices.Update(salesReport);
         }
