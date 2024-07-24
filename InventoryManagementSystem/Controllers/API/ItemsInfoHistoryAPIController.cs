@@ -1,11 +1,13 @@
-﻿using Inventory.Entities;
+﻿using ClosedXML.Excel;
+using Inventory.Entities;
 using InventoryManagementSystem.Data;
 using InventoryManagementSystem.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace InventoryManagementSystem.Controllers.API
 {
@@ -20,13 +22,14 @@ namespace InventoryManagementSystem.Controllers.API
         }
 
         [HttpGet]
-        public async Task<List<ItemsHistoryVM>> GetItemsHistory()
+        public async Task<List<ItemsHistoryVM>> GetItemsHistory(string search = "")
         {
             var items = await _context.Items.ToListAsync();
             var itemsHistory = await _context.ItemsHistoryInfo.ToListAsync();
 
             var result = (from i in items
                           join h in itemsHistory on i.Id equals h.ItemId
+                          where string.IsNullOrEmpty(search) || i.Name.Contains(search)
                           select new ItemsHistoryVM
                           {
                               Id = h.Id,
@@ -39,6 +42,56 @@ namespace InventoryManagementSystem.Controllers.API
                           }).ToList();
 
             return result;
+        }
+
+        [HttpGet("GenerateReport")]
+        public IActionResult GenerateReport(string search = "")
+        {
+            var items = _context.Items.ToList();
+            var itemsHistory = _context.ItemsHistoryInfo.ToList();
+
+            var result = (from i in items
+                          join h in itemsHistory on i.Id equals h.ItemId
+                          where string.IsNullOrEmpty(search) || i.Name.Contains(search)
+                          select new ItemsHistoryVM
+                          {
+                              Id = h.Id,
+                              ItemId = h.ItemId,
+                              ItemName = i.Name,
+                              Quantity = h.Quantity,
+                              StockCheckOut = h.StockCheckOut,
+                              TransactionType = h.TransactionType,
+                              TransDate = h.TransDate
+                          }).ToList();
+
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("Items History");
+
+                // Add header row
+                worksheet.Cell(1, 1).Value = "Item Name";
+                worksheet.Cell(1, 2).Value = "Quantity";
+                worksheet.Cell(1, 3).Value = "Transaction Type";
+                worksheet.Cell(1, 4).Value = "Stock Check Out";
+                worksheet.Cell(1, 5).Value = "Date";
+
+                // Add data rows
+                for (int i = 0; i < result.Count; i++)
+                {
+                    worksheet.Cell(i + 2, 1).Value = result[i].ItemName;
+                    worksheet.Cell(i + 2, 2).Value = result[i].Quantity;
+                    worksheet.Cell(i + 2, 3).Value = result[i].TransactionTypeText;
+                    worksheet.Cell(i + 2, 4).Value = result[i].StockCheckOutText;
+                    worksheet.Cell(i + 2, 5).Value = result[i].TransDateFormatted;
+                }
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    stream.Position = 0;
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ItemsHistoryReport.xlsx");
+                }
+            }
         }
 
         public class ItemsHistoryVM

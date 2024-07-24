@@ -1,11 +1,11 @@
 ﻿/// <reference path="itemhistory.model.js" />
 /// <reference path="../knockout.js" />
-
 var itemhistorycontroller = function () {
     var self = this;
     const baseUrl = "/api/ItemsInfoHistoryAPI";
     self.ItemHistoryList = ko.observableArray([]);
 
+    self.searchQuery = ko.observable("");
     self.searchArrayList = ko.observableArray([]);
     self.currentPage = ko.observable(1);
     self.itemsPerPage = ko.observable(10);
@@ -15,7 +15,7 @@ var itemhistorycontroller = function () {
 
     self.pagedItems = ko.computed(function () {
         var startIndex = (self.currentPage() - 1) * self.itemsPerPage();
-        return self.ItemHistoryList().slice(startIndex, startIndex + self.itemsPerPage());
+        return self.ItemHistoryList.slice(startIndex, startIndex + self.itemsPerPage());
     });
 
     // Navigation methods
@@ -30,29 +30,36 @@ var itemhistorycontroller = function () {
             self.currentPage(self.currentPage() - 1);
         }
     };
-
     self.goToPage = function (page) {
         self.currentPage(page);
     };
 
-    self.GetDatas = async function () {
-        try {
-            let result = await ajax.get(baseUrl);
+    self.GetDatas = function () {
+        var search = self.searchQuery();
+        ajax.get(baseUrl + "?search=" + encodeURIComponent(search)).then(function (result) {
             self.ItemHistoryList(result.map(item => new itemhistorymodel(item)));
             self.currentPage(1);
-        } catch (error) {
-            console.error("Error fetching data:", error);
-        }
+        });
+    };
+
+    self.search = function () {
+        self.GetDatas();
+    };
+
+    self.generateReport = function () {
+        var search = self.searchQuery();
+        window.location.href = baseUrl + "/GenerateReport?search=" + encodeURIComponent(search);
     };
 
     self.GetDatas();
-};
+}
 
 var ajax = {
     get: function (url) {
         return $.ajax({
             method: "GET",
             url: url,
+            async: false
         });
     },
     post: function (url, data) {
@@ -63,7 +70,7 @@ var ajax = {
             },
             method: "POST",
             url: url,
-            data: JSON.stringify(data)
+            data: (data)
         });
     },
     put: function (url, data) {
@@ -74,13 +81,13 @@ var ajax = {
             },
             method: "PUT",
             url: url,
-            data: JSON.stringify(data)
+            data: data
         });
     },
-    delete: function (url) {
+    delete: function (route) {
         return $.ajax({
             method: "DELETE",
-            url: url,
+            url: route
         });
     }
-};
+}

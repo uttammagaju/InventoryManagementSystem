@@ -1,8 +1,14 @@
 ﻿
-@* <div class="top-left">
-    <input type="text" class="form-control d-inline-block w-auto" placeholder="Search Item" data-bind="value: $root.searchTerm, valueUpdate: 'afterkeydown'" />
-    <button class="btn btn-secondary mx-3" data-bind="click:$root.clickedSearch">Search</button>
-</div> *@
+<div class="top-left">
+   @*  <input type="text" class="form-control d-inline-block w-auto" placeholder="Search Item" data-bind="value: $root.searchTerm, valueUpdate: 'afterkeydown'" />
+    <button class="btn btn-secondary mx-3" data-bind="click:$root.clickedSearch">Search</button> *@
+    <div>
+        <input type="text" placeholder="Search..." data-bind="value: searchQuery, valueUpdate: 'input'" />
+        <button data-bind="click: search">Search</button>
+        <button data-bind="click: generateReport">Generate Report</button>
+    </div>
+
+</div>
 <table class="table table-striped mt-4">
     <thead>
         <tr>
