@@ -2,6 +2,7 @@
 using Inventory.Entities;
 using InventoryManagementSystem.Data;
 using InventoryManagementSystem.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -13,6 +14,7 @@ namespace InventoryManagementSystem.Controllers.API
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ItemsInfoHistoryAPIController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -22,14 +24,15 @@ namespace InventoryManagementSystem.Controllers.API
         }
 
         [HttpGet]
-        public async Task<List<ItemsHistoryVM>> GetItemsHistory(string search = "")
+        public async Task<List<ItemsHistoryVM>> GetItemsHistory(string search = "", TransactionType? transactionType = null)
         {
             var items = await _context.Items.ToListAsync();
             var itemsHistory = await _context.ItemsHistoryInfo.ToListAsync();
 
             var result = (from i in items
                           join h in itemsHistory on i.Id equals h.ItemId
-                          where string.IsNullOrEmpty(search) || i.Name.Contains(search)
+                          where (string.IsNullOrEmpty(search) || i.Name.Contains(search)) &&
+                                (!transactionType.HasValue || h.TransactionType == transactionType)
                           select new ItemsHistoryVM
                           {
                               Id = h.Id,
@@ -45,14 +48,15 @@ namespace InventoryManagementSystem.Controllers.API
         }
 
         [HttpGet("GenerateReport")]
-        public IActionResult GenerateReport(string search = "")
+        public IActionResult GenerateReport(string search = "", TransactionType? transactionType = null)
         {
             var items = _context.Items.ToList();
             var itemsHistory = _context.ItemsHistoryInfo.ToList();
 
             var result = (from i in items
                           join h in itemsHistory on i.Id equals h.ItemId
-                          where string.IsNullOrEmpty(search) || i.Name.Contains(search)
+                          where (string.IsNullOrEmpty(search) || i.Name.Contains(search)) &&
+                                (!transactionType.HasValue || h.TransactionType == transactionType)
                           select new ItemsHistoryVM
                           {
                               Id = h.Id,
@@ -93,7 +97,6 @@ namespace InventoryManagementSystem.Controllers.API
                 }
             }
         }
-
         public class ItemsHistoryVM
         {
             public int Id { get; set; }

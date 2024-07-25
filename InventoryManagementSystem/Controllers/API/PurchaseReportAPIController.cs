@@ -1,6 +1,7 @@
 ﻿
 using Inventory.Services.PurchasesReport;
 using InventoryManagementSystem.Models.VM;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace InventoryManagementSystem.Controllers.API
 {
     [Route("api/[controller]/[Action]")]
     [ApiController]
+    [Authorize]
     public class PurchaseReportAPIController : ControllerBase
     {
         private readonly IPurchasesReportServices _purchasesReportServices;

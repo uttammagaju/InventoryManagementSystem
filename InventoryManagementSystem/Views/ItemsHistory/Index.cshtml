@@ -4,6 +4,12 @@
     <button class="btn btn-secondary mx-3" data-bind="click:$root.clickedSearch">Search</button> *@
     <div>
         <input type="text" placeholder="Search..." data-bind="value: searchQuery, valueUpdate: 'input'" />
+        <select data-bind="value: selectedTransactionType">
+            <option value="">All</option>
+            <option value="0">Purchase</option>
+            <option value="1">Sale</option>
+            <!-- Add more options as per your enum values -->
+        </select>
         <button data-bind="click: search">Search</button>
         <button data-bind="click: generateReport">Generate Report</button>
     </div>

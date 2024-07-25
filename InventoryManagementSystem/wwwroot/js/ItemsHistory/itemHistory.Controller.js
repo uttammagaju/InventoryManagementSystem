@@ -6,6 +6,7 @@ var itemhistorycontroller = function () {
     self.ItemHistoryList = ko.observableArray([]);
 
     self.searchQuery = ko.observable("");
+    self.selectedTransactionType = ko.observable("");
     self.searchArrayList = ko.observableArray([]);
     self.currentPage = ko.observable(1);
     self.itemsPerPage = ko.observable(10);
@@ -36,7 +37,12 @@ var itemhistorycontroller = function () {
 
     self.GetDatas = function () {
         var search = self.searchQuery();
-        ajax.get(baseUrl + "?search=" + encodeURIComponent(search)).then(function (result) {
+        var transactionType = self.selectedTransactionType();
+        var url = baseUrl + "?search=" + encodeURIComponent(search);
+        if (transactionType !== "") {
+            url += "&transactionType=" + transactionType;
+        }
+        ajax.get(url).then(function (result) {
             self.ItemHistoryList(result.map(item => new itemhistorymodel(item)));
             self.currentPage(1);
         });
@@ -48,7 +54,12 @@ var itemhistorycontroller = function () {
 
     self.generateReport = function () {
         var search = self.searchQuery();
-        window.location.href = baseUrl + "/GenerateReport?search=" + encodeURIComponent(search);
+        var transactionType = self.selectedTransactionType();
+        var url = baseUrl + "/GenerateReport?search=" + encodeURIComponent(search);
+        if (transactionType !== "") {
+            url += "&transactionType=" + transactionType;
+        }
+        window.location.href = url;
     };
 
     self.GetDatas();

@@ -14,7 +14,7 @@ namespace InventoryManagementSystem.Controllers
         {
             _logger = logger;
         }
-
+        [AllowAnonymous]
         public IActionResult Index()
         {
             return View();

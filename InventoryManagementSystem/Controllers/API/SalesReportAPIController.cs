@@ -1,5 +1,6 @@
 ﻿using InventoryManagementSystem.Models.VM;
 using InventoryManagementSystem.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +8,7 @@ namespace InventoryManagementSystem.Controllers.API
 {
     [Route("api/[controller]/[Action]")]
     [ApiController]
+    [Authorize]
     public class SalesReportAPIController : ControllerBase
     {
         private readonly ISalesReportServices _salesReportServices;

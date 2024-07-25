@@ -1,6 +1,7 @@
 ﻿using Inventory.Entities;
 using InventoryManagementSystem.Data;
 using InventoryManagementSystem.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -10,6 +11,7 @@ namespace InventoryManagementSystem.Controllers.API
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CurrentItemsInfoAPIController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

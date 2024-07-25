@@ -326,16 +326,13 @@ namespace InventoryManagementSystem.Services
                 foreach (var item in details)
                 {
                     var currentInfo = _context.ItemsCurrentInfo.FirstOrDefault(x => x.ItemId == item.ItemId);
-                    if (currentInfo.quantity > 0)
-                    {
+                   
+                  
                         currentInfo.quantity -= item.Quantity;
                         _context.ItemsCurrentInfo.Update(currentInfo);
                         _context.SaveChanges();
-                    }
-                    else
-                    {
-                        throw new Exception("item quntity is zero");
-                    }
+                  
+                   
 
                     var currentHistory = new ItemCurrentInfoHistory()
                     {
