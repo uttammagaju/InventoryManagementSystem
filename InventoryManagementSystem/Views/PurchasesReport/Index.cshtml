@@ -13,7 +13,7 @@
                          <span data-bind="ifnot: IsUpdated">Create New Purchase</span> 
                          <span data-bind="if: IsUpdated">Update Purchase</span> 
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @* data-bind="click: CloseModel" *@></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-bind="click: CloseModel"></button>
                 </div>
                 <div class="modal-body">
                     <form>
@@ -51,7 +51,7 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Vendor Name</th>
+                                    <th>Item Name</th>
                                     <th>Unit</th>
                                     <th>Quantity</th>
                                     <th>Amount</th>

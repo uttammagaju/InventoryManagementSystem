@@ -93,7 +93,7 @@ var SalesReportController = function () {
                     });
                 break;
             case mode.update:
-                debugger
+               
                 ajax.put(baseUrl + "/Update", JSON.stringify(formattedOrder))
                     .done(function (result) {
                         var updatedOrder = new SalesMasterVM(result, self);
@@ -172,12 +172,17 @@ var SalesReportController = function () {
     }
 
     self.CloseModel = function () {
+        debugger
+        
+        self.IsUpdated(false);
         self.resetForm();
+
     }
 
     self.resetForm = function () {
         self.NewOrder(new SalesMasterVM({}, self));
-        self.SelectedOrder(new SalesMasterVM({},self));
+        self.SelectedOrder(new SalesMasterVM({}, self));
+        self.mode(mode.create);
         self.IsUpdated(false);
        // self.AddItem(); // Add an initial empty item
     }

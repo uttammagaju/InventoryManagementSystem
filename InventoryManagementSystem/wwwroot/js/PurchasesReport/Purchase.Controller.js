@@ -5,6 +5,7 @@ const mode = {
     update: 2
 }
 var PurchasesController = function () {
+
     var self = this;
     const baseUrl = '/api/PurchaseReportAPI';
     self.NewPurchase = ko.observable(new PurchaseMasterVM({}, self));
@@ -66,7 +67,6 @@ var PurchasesController = function () {
         var purchaseData = ko.toJS(self.IsUpdated() ? self.SelectedPurchase : self.NewPurchase);
         switch (self.mode()) {
             case mode.create:
-                debugger
                 ajax.post(baseUrl + "/Create", JSON.stringify(purchaseData))
                     .done(function (result) {
                         if (result.success) {
@@ -116,6 +116,7 @@ var PurchasesController = function () {
         self.NewPurchase(new PurchaseMasterVM({}, self));
         self.SelectedPurchase(new PurchaseMasterVM({}, self));
         self.IsUpdated(false);
+        self.mode(mode.create);
         //self.AddItem();
     }
 
