@@ -31,7 +31,7 @@ namespace InventoryManagementSystem.Controllers.API
         }
 
         [HttpPost]
-        public async Task<int> Create(VendorModel vendorModel)
+        public async Task<ActionResult> Create(VendorModel vendorModel)
         {
             return await _vendor.Create(vendorModel);
         }

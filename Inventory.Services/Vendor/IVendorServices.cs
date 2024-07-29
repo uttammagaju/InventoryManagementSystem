@@ -8,7 +8,7 @@ namespace InventoryManagementSystem.Services
     {
         Task<List<VendorModel>> GetAll();
         Task<VendorModel> GetById(int id);
-        Task<int> Create (VendorModel vendor);
+        Task<ActionResult> Create (VendorModel vendor);
         Task<bool> Update (VendorModel vendor);
         Task<ActionResult> Delete (int id);
         Task<List<VendorModel>> SearchVendor(string searchTerm);

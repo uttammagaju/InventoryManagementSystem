@@ -47,7 +47,30 @@ var VendorController = function () {
     self.clickedSearch = function () {
         self.getSearchData();
     }
+
+  
     self.AddVendor = function () {
+        
+        if (self.NewVendor().Name() == '' || self.NewVendor().Name().length > 25) {
+            toastr.error("Please Enter your Name and must be less than 25");
+            return;
+        }
+
+        if (self.NewVendor().Contact() == '' ) {
+            toastr.error("Contact Number is Required"); 
+            return;
+        }
+        if (self.NewVendor().Contact().length > 10 || self.NewVendor().Contact().length < 10) { 
+            toastr.error("Number must equal to 10 digit"); 
+            return;
+        }
+        if (self.NewVendor().Address() == '' ) {
+            toastr.error("Please Enter Your Address and must be less than 50 character"); 
+            return;
+        }
+       
+
+        
         var vendorData = ko.toJS(self.IsUpdated() ? self.SelectedVendor : self.NewVendor);
         switch (self.mode()) {
             case 1:
@@ -58,7 +81,8 @@ var VendorController = function () {
                             self.GetDatas();
                             self.CloseModel();
                             $('#vendorModal').modal('hide');
-                            alert(result.message)
+                            Swal.fire(result.message);
+                            
                         }
                         else {
                             alert(result.message);
@@ -78,6 +102,7 @@ var VendorController = function () {
     }
 
     self.DeleteVendor = function (model) {
+        
         self.vendorToDelete(model);
         setTimeout(function () {
             $('#deleteConfirmModal').modal('show');

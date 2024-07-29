@@ -45,18 +45,26 @@ namespace InventoryManagementSystem.Services
 
         }
 
-        public async Task<int> Create(VendorModel VendorModel)
+        public async Task<ActionResult> Create(VendorModel VendorModel)
         {
-            var vendor = new VendorModel
+            try
             {
-                Name = VendorModel.Name,
-                Address = VendorModel.Address,
-                Contact = VendorModel.Contact
-            };
+                var vendor = new VendorModel
+                {
+                    Name = VendorModel.Name,
+                    Address = VendorModel.Address,
+                    Contact = VendorModel.Contact
+                };
 
-            _context.Vendors.Add(vendor);
-            await _context.SaveChangesAsync();
-            return vendor.Id;
+                _context.Vendors.Add(vendor);
+                await _context.SaveChangesAsync();
+                return new OkObjectResult(new { Success = true, Message = "Vendor added successfully" });
+            }
+            catch (Exception ex)
+            {
+                return new OkObjectResult(new { Success = false, Message = "while adding vendor error occured" });
+            }
+           
         }
 
         public async Task<bool> Update(VendorModel VendorModel)

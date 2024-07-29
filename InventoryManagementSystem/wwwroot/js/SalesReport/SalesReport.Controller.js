@@ -172,8 +172,6 @@ var SalesReportController = function () {
     }
 
     self.CloseModel = function () {
-        debugger
-        
         self.IsUpdated(false);
         self.resetForm();
 
