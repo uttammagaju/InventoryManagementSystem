@@ -7,6 +7,7 @@ const mode = {
 
 var ItemController = function () {
     var self = this;
+    var valid;
     const baseUrl = '/api/ItemAPI';
     self.NewItem = ko.observable(new ItemModel());
     self.CurrentItem = ko.observableArray([]);
@@ -50,39 +51,68 @@ var ItemController = function () {
 
     self.GetDatas();
 
-    self.AddItem = function () {
-        var ItemData = ko.toJS(self.IsUpdated() ? self.SelectedItem : self.NewItem);
-        switch (self.mode()) {
-            case mode.create:
-                ajax.post(baseUrl, JSON.stringify(ItemData))
-                    .done(function (result) {
-                        if (result.success) {
-                            self.CurrentItem.push(new ItemModel(result));
-                            self.CloseModel();
-                            self.GetDatas();
-                            $('#itemModal').modal('hide');
-                        } else {
-                            alert(result.message);
-                        }
-                        
-                    });
-                break;
-            case mode.update:
-                ajax.put(baseUrl, JSON.stringify(ItemData))
-                    .done(function (result) {
-                        if (result.success) {
-                            self.CurrentItem.replace(self.SelectedItem(), new ItemModel(result));
-                            self.CloseModel();
-                            self.GetDatas();
-                            $('#itemModal').modal('hide');
-                        }
-                        else {
-                            alert(result.message);
-                        }
-                        
-                    });
-                break;
+    self.validate = function () {
+        var isvalid = true;
+        var item = self.IsUpdated() ? self.SelectedItem : self.NewItem;
+        if (item().Name() == '' || item().Name().length > 25) {
+            toastr.error("Please Enter your Name and must be less than 25");
+            isvalid = false;
+            return;
         }
+
+        if (item().Unit() == ''  ) {
+            toastr.error("Please Enter Unit");
+            isvalid = false;
+            return;
+        }
+        if (item().Category() == '') {
+            toastr.error("Please Enter Category");
+            isvalid = false;
+            return;
+        }
+        return isvalid;
+    }
+
+    self.AddItem = function () {
+      
+       var isvalid =  self.validate();
+
+        var ItemData = ko.toJS(self.IsUpdated() ? self.SelectedItem : self.NewItem);
+        if (isvalid) {
+            switch (self.mode()) {
+                case mode.create:
+                    ajax.post(baseUrl, JSON.stringify(ItemData))
+                        .done(function (result) {
+                            if (result.success) {
+                                self.CurrentItem.push(new ItemModel(result));
+                                self.CloseModel();
+                                self.GetDatas();
+                                $('#itemModal').modal('hide');
+                                Swal.fire("Item Added Successfully");
+                            } else {
+                                toastr.error(result.message);
+                            }
+
+                        });
+                    break;
+                case mode.update:
+                    ajax.put(baseUrl, JSON.stringify(ItemData))
+                        .done(function (result) {
+                            if (result.success) {
+                                self.CurrentItem.replace(self.SelectedItem(), new ItemModel(result));
+                                self.CloseModel();
+                                self.GetDatas();
+                                $('#itemModal').modal('hide');
+                            }
+                            else {
+                                alert(result.message);
+                            }
+
+                        });
+                    break;
+            }
+        }
+        
     };
 
     self.DeleteItem = function (model) {
@@ -111,6 +141,7 @@ var ItemController = function () {
         self.NewItem(new ItemModel());
         self.SelectedItem(new ItemModel());
         self.IsUpdated(false);
+        self.mode(mode.create);
     };
 };
 

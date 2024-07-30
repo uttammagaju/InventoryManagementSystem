@@ -48,61 +48,70 @@ var VendorController = function () {
         self.getSearchData();
     }
 
-  
-    self.AddVendor = function () {
-        
-        if (self.NewVendor().Name() == '' || self.NewVendor().Name().length > 25) {
+    self.validate = function () {
+        var isvalid = true;
+        var vendor = self.IsUpdated() ? self.SelectedVendor : self.NewVendor;
+        if (vendor().Name() == '' || vendor().Name().length > 25) {
             toastr.error("Please Enter your Name and must be less than 25");
+            isvalid = false;
             return;
         }
 
-        if (self.NewVendor().Contact() == '' ) {
-            toastr.error("Contact Number is Required"); 
+        if (vendor().Contact() == '') {
+            toastr.error("Contact Number is Required");
+            isvalid = false;
             return;
         }
-        if (self.NewVendor().Contact().length > 10 || self.NewVendor().Contact().length < 10) { 
-            toastr.error("Number must equal to 10 digit"); 
+        if (vendor().Contact().length > 10 || vendor().Contact().length < 10 || vendor().Contact() <= 0) {
+            toastr.error("Number must equal to 10 digit");
+            isvalid = false;
             return;
         }
-        if (self.NewVendor().Address() == '' ) {
-            toastr.error("Please Enter Your Address and must be less than 50 character"); 
+        if (vendor().Address() == '') {
+            toastr.error("Please Enter Your Address and must be less than 50 character");
+            isvalid = false;
             return;
         }
-       
+        return isvalid;
+    }
 
-        
+    self.AddVendor = function () {
+
+        var isvalid = self.validate();
+
         var vendorData = ko.toJS(self.IsUpdated() ? self.SelectedVendor : self.NewVendor);
-        switch (self.mode()) {
-            case 1:
-                ajax.post(baseUrl, JSON.stringify(vendorData))
-                    .done(function (result) {
-                        if (result.success) {
-                            self.CurrentVendor.push(new VendorModel(result));
-                            self.GetDatas();
+        if (isvalid) {
+            switch (self.mode()) {
+                case 1:
+                    ajax.post(baseUrl, JSON.stringify(vendorData))
+                        .done(function (result) {
+                            if (result.success || self.validate() == true) {
+                                self.CurrentVendor.push(new VendorModel(result));
+                                self.GetDatas();
+                                self.CloseModel();
+                                $('#vendorModal').modal('hide');
+                                Swal.fire(result.message);
+
+                            }
+                            else {
+                                toastr.error(result.message);
+                            }
+
+                        })
+                    break;
+                case 2:
+                    ajax.put(baseUrl, JSON.stringify(vendorData))
+                        .done(function (result) {
+                            self.CurrentVendor.replace(self.SelectedVendor(), new VendorModel(result));
                             self.CloseModel();
+                            self.GetDatas();
                             $('#vendorModal').modal('hide');
-                            Swal.fire(result.message);
-                            
-                        }
-                        else {
-                            alert(result.message);
-                        }
-                        
-                    })
-                break;
-            case 2:
-                ajax.put(baseUrl, JSON.stringify(vendorData))
-                    .done(function (result) {
-                        self.CurrentVendor.replace(self.SelectedVendor(), new VendorModel(result));
-                        self.CloseModel();
-                        self.GetDatas();
-                        $('#vendorModal').modal('hide');
-                    })
-        }
+                        })
+            }
+        } 
     }
 
     self.DeleteVendor = function (model) {
-        
         self.vendorToDelete(model);
         setTimeout(function () {
             $('#deleteConfirmModal').modal('show');
@@ -114,7 +123,6 @@ var VendorController = function () {
         var model = self.vendorToDelete();
         if (model) {
             ajax.delete(baseUrl + "?id=" + model.Id())
-          
                 .done((result) => {
                     if (result.success) {
                         self.CurrentVendor.remove(model);
@@ -122,8 +130,7 @@ var VendorController = function () {
                     }
                     else {
                         alert(result.message)
-                    }
-                   
+                    } 
                 })
                 .fail((err) => {
                     console.log(err);
@@ -148,6 +155,7 @@ var VendorController = function () {
         self.NewVendor(new VendorModel());
         self.SelectedVendor(new VendorModel());
         self.IsUpdated(false);
+        self.mode(mode.create);
     }
 }
 

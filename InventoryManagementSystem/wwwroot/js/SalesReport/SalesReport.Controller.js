@@ -7,6 +7,7 @@ const mode = {
 
 var SalesReportController = function () {
     var self = this;
+  
     const baseUrl = "/api/SalesReportAPI";
     self.CurrentOrder = ko.observableArray([]);
     self.CustomersNameList = ko.observableArray([]);
@@ -39,117 +40,115 @@ var SalesReportController = function () {
 
     self.getItemsName(); 
    
-
-
-    self.AddOrder = function () {
-        var orderData = ko.toJS(self.IsUpdated() ? self.SelectedOrder : self.NewOrder);
-        console.log("Order Data before sending:", orderData); // Log the data
-
-        // Format the data if needed
-        var formattedOrder = {
-            Id: orderData.Id,
-            CustomerId: orderData.CustomerId,
-            SalesDate: orderData.SalesDate,
-            CustomerName: orderData.CustomerName,
-            InvoiceNumber: orderData.InvoiceNumber,
-            Discount: orderData.Discount,
-            Sales: orderData.Sales.map(function (item) {
-                return {
-                    Id: item.Id,
-                    ItemId: item.ItemId,
-                    Unit: item.Unit,
-                    Quantity: item.Quantity,
-                    Price: item.Price
-                };
-            })
-        };
-
-        console.log("Formatted Order Data:", formattedOrder); // Log the formatted data
-
-        // Validate the order data
-        var validation = self.validateOrder(formattedOrder);
-        if (!validation.isValid) {
-            alert(validation.errorMessage);
+    self.validate = function () {
+        var isvalid = true;
+        var order = self.IsUpdated() ? self.SelectedOrder : self.NewOrder;
+        console.log(ko.toJS(order));
+        if (order().SalesDate() == '') {
+            toastr.error("Please select Date");
+            isvalid = false;
             return;
         }
+        if (!order().CustomerId() ) {
+            toastr.error("Please select Customer ");
+            isvalid = false;
+            console.log("customerId", isvalid)
+            return;
+        }
+        if (order().InvoiceNumber() < 0 || order().InvoiceNumber() == '') {
+            toastr.error("Please Invoice is required and can't be negative ");
+            isvalid = false;
+            console.log("InvoiceNumber", isvalid)
+            return;
+        }
+        if (order().Discount() < 0 || order().Discount() > 100 || order().Discount() === '') {
+            toastr.error("Discount must be between 0 and 100");
+            isvalid = false;
+            console.log("dis", isvalid);
+            return;
+        }
+        if (order().Sales().length == 0) {
+            toastr.error("At least one item is required.");
+            isvalid = false;
+            console.log("sale Len", isvalid)
+            return;
+        }
+        
+        order().Sales().forEach((item, index) => {
+            
+            if (!item.ItemId() ) {
+                toastr.error("You must have to choose one item");
+                isvalid = false;
+                console.log("ItemID", isvalid)
+                return;
+            }
+            if (item.Quantity() == '' || item.Quantity() <= 0) {
+                toastr.error("Quantity is required and must be greater than 0");
+                isvalid = false;
+                console.log("quantity", isvalid)
+                return;
+            }
+            if (!item.Price() || item.Price() <= 0) {
+                toastr.error("Price is required and must be greater than 0");
+                isvalid = false;
+                console.log("Price", isvalid)
+                return;
+            }
+        });
+        return isvalid;
+    }
 
-        switch (self.mode()) {
-            case mode.create:
-                ajax.post(baseUrl + "/Create", JSON.stringify(orderData))
-                    .done(function (result) {
-                        if (result.success) {
-                            console.log("Data received", result);
-                            self.CurrentOrder.push(new SalesMasterVM(result, self));
+    self.AddOrder = function () {
+
+        var isvalid = self.validate();
+        
+        var orderData = ko.toJS(self.IsUpdated() ? self.SelectedOrder : self.NewOrder);
+        if (isvalid == true) {
+            switch (self.mode()) {
+                case mode.create:
+                    ajax.post(baseUrl + "/Create", JSON.stringify(orderData))
+                        .done(function (result) {
+                            if (result.success) {
+                                console.log("Data received", result);
+                                self.CurrentOrder.push(new SalesMasterVM(result, self));
+                                self.resetForm();
+                                self.getData();
+                                $('#orderModal').modal('hide');
+                                Swal.fire("Item Added Successfully");
+                            }
+                            else {
+                                toastr.error(result.message)
+                            }
+                        })
+                        .fail(function (err) {
+                            console.log("Error adding order:", err);
+                        });
+                    break;
+                case mode.update:
+
+                    ajax.put(baseUrl + "/Update", JSON.stringify(orderData))
+                        .done(function (result) {
+                            var updatedOrder = new SalesMasterVM(result, self);
+                            var index = self.CurrentOrder().findIndex(function (item) {
+                                return item.Id() === updatedOrder.Id();
+                            });
+                            if (index >= 0) {
+                                self.CurrentOrder.replace(self.CurrentOrder()[index], updatedOrder);
+                            }
                             self.resetForm();
                             self.getData();
                             $('#orderModal').modal('hide');
-                        }
-                        else {
-                            alert(result.message)
-                        }
-                    })
-                    .fail(function (err) {
-                        console.log("Error adding order:", err);
-                    });
-                break;
-            case mode.update:
-               
-                ajax.put(baseUrl + "/Update", JSON.stringify(formattedOrder))
-                    .done(function (result) {
-                        var updatedOrder = new SalesMasterVM(result, self);
-                        var index = self.CurrentOrder().findIndex(function (item) {
-                            return item.Id() === updatedOrder.Id();
+                        })
+                        .fail(function (err) {
+                            console.log("Error updating order:", err);
                         });
-                        if (index >= 0) {
-                            self.CurrentOrder.replace(self.CurrentOrder()[index], updatedOrder);
-                        }
-                        self.resetForm();
-                        self.getData();
-                        $('#orderModal').modal('hide');
-                    })
-                    .fail(function (err) {
-                        console.log("Error updating order:", err);
-                    });
-                break;
+                    break;
+            }
         }
+        
     };
 
-    self.validateOrder = function (orderData) {
-        var isValid = true;
-        var errorMessage = "";
 
-        if (!orderData.CustomerId) {
-            isValid = false;
-            errorMessage += "Customer is required. ";
-        }
-
-        if (!orderData.SalesDate) {
-            isValid = false;
-            errorMessage += "Date is required. ";
-        }
-
-        if (orderData.Sales.length === 0) {
-            isValid = false;
-            errorMessage += "At least one item is required. ";
-        }
-
-        orderData.Sales.forEach((item, index) => {
-            if (!item.ItemId) {
-                isValid = false;
-                errorMessage += `Item is required for item ${index + 1}. `;
-            }
-            if (!item.Quantity || item.Quantity <= 0) {
-                isValid = false;
-                errorMessage += `Valid Quantity is required for item ${index + 1}. `;
-            }
-            if (!item.Price || item.Price <= 0) {
-                isValid = false;
-                errorMessage += `Valid Price is required for item ${index + 1}. `;
-            }
-        });
-
-        return { isValid, errorMessage };
-    };
 
 
     // Delete Product

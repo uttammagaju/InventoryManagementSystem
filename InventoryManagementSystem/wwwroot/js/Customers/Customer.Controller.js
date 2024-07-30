@@ -19,7 +19,7 @@ var CustomerController = function () {
     self.customerToDelete = ko.observable();
     self.GetDatas = function () {
         ajax.get(baseUrl).then(function (result) {
-            self.CurrentCustomer(result.map(item => new CustomerModel(item))); // Corrected the mapping function
+            self.CurrentCustomer(result.map(item => new CustomerModel(item))); 
         });
     }
 
@@ -47,26 +47,63 @@ var CustomerController = function () {
     self.clickedSearch = function () {
         self.getSearchData();
     }
+
+    self.validate = function () {
+        var isvalid = true;
+        var customer = self.IsUpdated() ? self.SelectedCustomer : self.NewCustomer;
+        if (customer().FullName() == '' || customer().FullName().length > 25) {
+            toastr.error("Please Enter your Name and must be less than 25");
+            isvalid = false;
+            return;
+        }
+
+        if (customer().ContactNo() == '') {
+            toastr.error("Contact Number is Required");
+            isvalid = false;
+            return;
+        }
+        if (customer().ContactNo().length > 10 || customer().ContactNo().length < 10 || customer().ContactNo() <= 0) {
+            toastr.error("Number must equal to 10 digit");
+            isvalid = false;
+            return;
+        }
+        if (customer().Address() == '') {
+            toastr.error("Please Enter Your Address and must be less than 50 character");
+            isvalid = false;
+            return;
+        }
+        return isvalid;
+    }
+
     self.AddCustomer = function () {
+        var isvalid = self.validate();
         var customerData = ko.toJS(self.IsUpdated() ? self.SelectedCustomer : self.NewCustomer);
-        switch (self.mode()) {
-            case 1:
-                ajax.post(baseUrl, JSON.stringify(customerData))
-                    .done(function (result) {
-                        self.CurrentCustomer.push(new CustomerModel(result));
-                        self.GetDatas();
-                        self.CloseModel();
-                        $('#customerModal').modal('hide');
-                    })
-                break;
-            case 2:
-                ajax.put(baseUrl, JSON.stringify(customerData))
-                    .done(function (result) {
-                        self.CurrentCustomer.replace(self.SelectedCustomer(), new CustomerModel(result));
-                        self.CloseModel();
-                        self.GetDatas();
-                        $('#customerModal').modal('hide');
-                    })
+        if (isvalid) {
+            switch (self.mode()) {
+                case 1:
+                    ajax.post(baseUrl, JSON.stringify(customerData))
+                        .done(function (result) {
+                            if (self.validate()) {
+                                self.CurrentCustomer.push(new CustomerModel(result));
+                                self.GetDatas();
+                                self.CloseModel();
+                                $('#customerModal').modal('hide');
+                                Swal.fire("Customer Added Successfully");
+                            }
+                            else {
+                                toastr.error("Error occur while adding Customer");
+                            }
+                        })
+                    break;
+                case 2:
+                    ajax.put(baseUrl, JSON.stringify(customerData))
+                        .done(function (result) {
+                            self.CurrentCustomer.replace(self.SelectedCustomer(), new CustomerModel(result));
+                            self.CloseModel();
+                            self.GetDatas();
+                            $('#customerModal').modal('hide');
+                        })
+            }
         }
     }
 
@@ -109,6 +146,7 @@ var CustomerController = function () {
         self.NewCustomer(new CustomerModel());
         self.SelectedCustomer(new CustomerModel());
         self.IsUpdated(false);
+        self.mode(mode.create);
     }
 }
 

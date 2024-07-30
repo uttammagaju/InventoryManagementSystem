@@ -63,45 +63,101 @@ var PurchasesController = function () {
         }, 100);
     };
 
+    self.validate = function () {
+        var isvalid = true;
+        var purchase = self.IsUpdated() ? self.SelectedPurchase : self.NewPurchase;
+
+        if (!purchase().VendorId()) {
+            toastr.error("Please select Vendor ");
+            isvalid = false;
+            return;
+        }
+        if (purchase().InvoiceNumber() < 0 || purchase().InvoiceNumber() == '') {
+            toastr.error("Please Invoice is required and can't be negative ");
+            isvalid = false;
+            console.log("InvoiceNumber", isvalid)
+            return;
+        }
+        if (purchase().Discount() < 0 || purchase().Discount() > 100 || purchase().Discount() === '') {
+            toastr.error("Discount must be between 0 and 100");
+            isvalid = false;
+            console.log("dis", isvalid);
+            return;
+        }
+        if (purchase().Purchases().length == 0) {
+            toastr.error("At least one item is required.");
+            isvalid = false;
+            console.log("sale Len", isvalid)
+            return;
+        }
+
+        purchase().Purchases().forEach((item, index) => {
+
+            if (!item.ItemId()) {
+                toastr.error("You must have to choose one item");
+                isvalid = false;
+                console.log("ItemID", isvalid)
+                return;
+            }
+            if (item.Quantity() == '' || item.Quantity() <= 0) {
+                toastr.error("Quantity is required and must be greater than 0");
+                isvalid = false;
+                console.log("quantity", isvalid)
+                return;
+            }
+            if (!item.Amount() || item.Amount() <= 0) {
+                toastr.error("Amount is required and must be greater than 0");
+                isvalid = false;
+                console.log("Price", isvalid)
+                return;
+            }
+        });
+        return isvalid;
+    }
+
     self.AddPurchase = function () {
+        var isvalid = self.validate();
         var purchaseData = ko.toJS(self.IsUpdated() ? self.SelectedPurchase : self.NewPurchase);
-        switch (self.mode()) {
-            case mode.create:
-                ajax.post(baseUrl + "/Create", JSON.stringify(purchaseData))
-                    .done(function (result) {
-                        if (result.success) {
-                            console.log("Data received", result);
-                            self.CurrentPurchase.push(new PurchaseMasterVM(result, self));
+        if (isvalid) {
+            switch (self.mode()) {
+                case mode.create:
+                    ajax.post(baseUrl + "/Create", JSON.stringify(purchaseData))
+                        .done(function (result) {
+                            if (result.success) {
+                                console.log("Data received", result);
+                                self.CurrentPurchase.push(new PurchaseMasterVM(result, self));
+                                self.ResetForm();
+                                self.GetData();
+                                $('#orderModal').modal('hide');
+                                Swal.fire("Item Added Successfully");
+                            }
+                            else {
+                                alert(result.message);
+                            }
+                        })
+                        .fail(function (err) {
+                            console.log("Error adding order:", err);
+                        });
+                    break;
+                case mode.update:
+                    ajax.put(baseUrl + "/Update", JSON.stringify(purchaseData))
+                        .done(function (result) {
+                            var updatedOrder = new PurchaseMasterVM(result, self);
+                            var index = self.CurrentPurchase().findIndex(function (item) {
+                                return item.Id() === updatedOrder.Id();
+                            });
+                            if (index >= 0) {
+                                self.CurrentPurchase.replace(self.CurrentPurchase()[index], updatedOrder);
+                            }
                             self.ResetForm();
                             self.GetData();
                             $('#orderModal').modal('hide');
-                        }
-                        else {
-                            alert(result.message);
-                        }
-                    })
-                    .fail(function (err) {
-                        console.log("Error adding order:", err);
-                    });
-                break;
-            case mode.update:
-                ajax.put(baseUrl + "/Update", JSON.stringify(purchaseData))
-                    .done(function (result) {
-                        var updatedOrder = new PurchaseMasterVM(result, self);
-                        var index = self.CurrentPurchase().findIndex(function (item) {
-                            return item.Id() === updatedOrder.Id();
+                        })
+                        .fail(function (err) {
+                            console.log("Error updating order:", err);
                         });
-                        if (index >= 0) {
-                            self.CurrentPurchase.replace(self.CurrentPurchase()[index], updatedOrder);
-                        }
-                        self.ResetForm();
-                        self.GetData();
-                        $('#orderModal').modal('hide');
-                    })
-                    .fail(function (err) {
-                        console.log("Error updating order:", err);
-                    });
-                break;
+                    break;
+            }
         }
     };
 
