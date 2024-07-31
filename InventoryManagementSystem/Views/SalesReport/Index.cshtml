@@ -130,11 +130,30 @@
                 <td data-bind="text:NetAmount"></td>
                 <td>
                     <button class="btn btn-sm btn-dark" data-bind="click: $root.SelectOrder" data-bs-toggle="modal" data-bs-target="#orderModal">Edit</button>
-                    <button data-bind="click: $root.DeleteProduct" class="btn btn-sm btn-danger">Delete</button>
+                    <button data-bind="click: $root.DeleteSales" class="btn btn-sm btn-danger">Delete</button>
                 </td>
             </tr>
         </tbody>
     </table>
+</div>
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the customer <span data-bind="text: salesToDelete() ? salesToDelete().Id() : ''"></span>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button data-bind="click: confirmDelete" class="btn btn-sm btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+
 </div>
 @section Scripts {
     <script src="~/js/knockout.js"></script>

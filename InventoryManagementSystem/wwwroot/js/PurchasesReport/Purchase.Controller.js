@@ -152,6 +152,7 @@ var PurchasesController = function () {
                             self.ResetForm();
                             self.GetData();
                             $('#orderModal').modal('hide');
+                            toastr.success("Purchase Updated Successfully");
                         })
                         .fail(function (err) {
                             console.log("Error updating order:", err);
@@ -187,21 +188,27 @@ var PurchasesController = function () {
     self.ResetForm();
 
     self.confirmDelete = function () {
+        debugger
         var model = self.PurchaseToBeDelete();
         if (model) {
             ajax.delete(baseUrl + "/Delete?id=" + model.Id())
                 .done((result) => {
-                    self.CurrentCustomer.remove(function (item) {
-                        return item.Id() === model.Id();
-                    });
+
                     $('#deleteConfirmModal').modal('hide');
+                    toastr.success("Deleted Successfully")
+                    self.GetData();
                 })
                 .fail((err) => {
                     console.log(err);
                     $('#deleteConfirmModal').modal('hide');
                 });
         }
+        else {
+            toastr.error("Item Used in sales table")
+        }
     };
+
+   
 }
 
 var ajax = {

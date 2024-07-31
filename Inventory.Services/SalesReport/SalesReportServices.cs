@@ -323,16 +323,21 @@ namespace InventoryManagementSystem.Services
             else
             {
                 var details = _context.SalesDetails.Where(x => x.SalesMasterId == masterDate.Id).ToList();
+
+
                 foreach (var item in details)
                 {
-                    var currentInfo = _context.ItemsCurrentInfo.FirstOrDefault(x => x.ItemId == item.ItemId);
-                   
-                  
-                        currentInfo.quantity -= item.Quantity;
-                        _context.ItemsCurrentInfo.Update(currentInfo);
+                    var itemCurrentInfo = _context.ItemsCurrentInfo.FirstOrDefault(x => x.ItemId == item.ItemId);
+                    if (itemCurrentInfo.quantity > 0)
+                    {
+                        itemCurrentInfo.quantity += item.Quantity;
+                        _context.ItemsCurrentInfo.Update(itemCurrentInfo);
                         _context.SaveChanges();
-                  
-                   
+                    }
+                    else
+                    {
+                        throw new Exception("item quntity is zero");
+                    }
 
                     var currentHistory = new ItemCurrentInfoHistory()
                     {
@@ -340,8 +345,8 @@ namespace InventoryManagementSystem.Services
                         ItemId = item.ItemId,
                         Quantity = item.Quantity,
                         TransDate = DateTime.Now,
-                        StockCheckOut = StockCheckOut.Out,
-                        TransactionType = TransactionType.Sales,
+                        StockCheckOut = StockCheckOut.In,
+                        TransactionType = TransactionType.Purchase,
                     };
                     _context.ItemsHistoryInfo.Add(currentHistory);
                     _context.SaveChanges();

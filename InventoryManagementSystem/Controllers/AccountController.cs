@@ -15,6 +15,7 @@ namespace InventoryManagementSystem.Controllers
     public class AccountController : Controller
     {
         protected readonly IUserService _userService;
+        
         public AccountController(IUserService userService)
         {
             _userService = userService;
@@ -29,10 +30,23 @@ namespace InventoryManagementSystem.Controllers
         [HttpPost]
         public IActionResult Login(LoginVM model)
         {
+            
 
             UserModel user = _userService.GetUserWithRole(model.Email, model.Password);
-            user.ConfirmPassword = user.Password;
-            model.Username = user.Username;
+            if(user == null)
+            {
+                ViewData["Login Error "] = "Please Enter correct email and password";
+                return View("Index");
+            }
+            if(model.Password == user.Password)
+            {
+                user.ConfirmPassword = user.Password;
+                model.Username = user.Username;
+            }
+            else
+            {
+                return View("Index");
+            }
             if (user != null)
             {
                 IdentityUtils.AddingClaimIdentity(model, user.Roles ?? "employee", HttpContext);

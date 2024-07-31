@@ -16,6 +16,7 @@ var SalesReportController = function () {
     self.SelectedOrder = ko.observable(new SalesMasterVM({}, self));//self typically refers to the parent ViewModel or controller (SalesReportController).
     self.NewOrder = ko.observable(new SalesMasterVM({},self));
     self.mode = ko.observable(mode.create);
+    self.salesToDelete = ko.observable();
 
     // Fetch Data From Server 
     self.getData = function () {
@@ -138,6 +139,7 @@ var SalesReportController = function () {
                             self.resetForm();
                             self.getData();
                             $('#orderModal').modal('hide');
+                            toastr.success("Sale Updated Successfully");
                         })
                         .fail(function (err) {
                             console.log("Error updating order:", err);
@@ -148,7 +150,28 @@ var SalesReportController = function () {
         
     };
 
+    self.DeleteSales = function (model) {
+        self.salesToDelete(model);
+        setTimeout(function () {
+            $('#deleteConfirmModal').modal('show');
+        }, 100);
+    };
 
+    self.confirmDelete = function () {
+        var model = self.salesToDelete();
+        if (model) {
+            ajax.delete(baseUrl + "/Delete?id=" + model.Id())
+                .done((result) => {
+                    self.CurrentOrder.remove(model);
+                    $('#deleteConfirmModal').modal('hide');
+                    toastr.success("deleted Successfully")
+                })
+                .fail((err) => {
+                    console.log(err);
+                    $('#deleteConfirmModal').modal('hide');
+                });
+        }
+    };
 
 
     // Delete Product

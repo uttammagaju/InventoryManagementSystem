@@ -102,6 +102,7 @@ var CustomerController = function () {
                             self.CloseModel();
                             self.GetDatas();
                             $('#customerModal').modal('hide');
+                            toastr.success("Customer Updated Successfully");
                         })
             }
         }
@@ -122,6 +123,7 @@ var CustomerController = function () {
                 .done((result) => {
                     self.CurrentCustomer.remove(model);
                     $('#deleteConfirmModal').modal('hide');
+                    toastr.success("deleted Successfully")
                 })
                 .fail((err) => {
                     console.log(err);

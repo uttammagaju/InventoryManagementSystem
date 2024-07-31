@@ -16,6 +16,7 @@ var ItemController = function () {
     self.mode = ko.observable(mode.create);
     self.currentPage = ko.observable(1);
     self.itemsPerPage = ko.observable(10);
+    self.itemToDelete = ko.observable();
     self.totalPages = ko.computed(function () {
         return Math.ceil(self.CurrentItem().length / self.itemsPerPage());
     });
@@ -60,7 +61,7 @@ var ItemController = function () {
             return;
         }
 
-        if (item().Unit() == ''  ) {
+        if (item().Unit() == '') {
             toastr.error("Please Enter Unit");
             isvalid = false;
             return;
@@ -74,8 +75,8 @@ var ItemController = function () {
     }
 
     self.AddItem = function () {
-      
-       var isvalid =  self.validate();
+
+        var isvalid = self.validate();
 
         var ItemData = ko.toJS(self.IsUpdated() ? self.SelectedItem : self.NewItem);
         if (isvalid) {
@@ -103,27 +104,40 @@ var ItemController = function () {
                                 self.CloseModel();
                                 self.GetDatas();
                                 $('#itemModal').modal('hide');
+                                toastr.success("Item Update Successfully");
                             }
                             else {
-                                alert(result.message);
+                                toastr.error(result.message);
                             }
 
                         });
                     break;
             }
         }
-        
+
     };
 
     self.DeleteItem = function (model) {
-        ajax.delete(baseUrl + "?id=" + model.Id())
-            .done(function (result) {
-                self.CurrentItem.remove(function (item) { return item.Id() === result.Id; });
-                self.GetDatas();
-            })
-            .fail(function (err) {
-                console.log(err);
-            });
+        self.itemToDelete(model);
+        setTimeout(function () {
+            $('#deleteConfirmModal').modal('show');
+        }, 100);
+    };
+
+    self.confirmDelete = function () {
+        var model = self.itemToDelete();
+        if (model) {
+            ajax.delete(baseUrl + "?id=" + model.Id())
+                .done((result) => {
+                    self.CurrentItem.remove(model);
+                    $('#deleteConfirmModal').modal('hide');
+                    toastr.success("deleted Successfully")
+                })
+                .fail((err) => {
+                    console.log(err);
+                    $('#deleteConfirmModal').modal('hide');
+                });
+        }
     };
 
     self.SelectItem = function (model) {
